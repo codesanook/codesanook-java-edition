@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title th:text="${title}"></title>
+    <object layout:fragment="head">
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            window.postId = /*[[${post.id}]]*/null;
+            window.postTypeId = /*[[${@viewUtils.getPostTypeId(post)}]]*/null;
+            window.postSubtypeId = /*[[${@viewUtils.getPostSubtypeId(post)}]]*/null;
+            window.multipartPostId = /*[[${ multipartPostId }]]*/null;
+            /*]]>*/
+        </script>
+
+        <object th:replace="shared/post-resources::resources"></object>
+
+        <script type="text/javascript">
+            window.onready.push(function () {
+            });
+
+        </script>
+    </object>
+</head>
+
+<body>
+
+<div layout:fragment="content" th:remove="tag">
+    <div class="row" ng-controller="postAddUpdateController">
+
+        <div class="col-sm-6 editor-container">
+            <!--begin main col-sm-5-->
+            <div ng-if="post.isSaving" class="text-center">
+                <div style="display: inline-block">
+                    <line-loading/>
+                </div>
+            </div>
+
+            <form ng-submit="savePost(form)" role="form" name="form" novalidate>
+
+                <div class="form-group">
+                    <label for="title">title</label>
+                    <input id="title"
+                           type="text"
+                           tabindex="1"
+                           name="title"
+                           class="form-control input-sm"
+                           ng-model="post.title"
+                           ng-disabled="post.isDisabled"
+                           ng-required="true"
+                           ng-minlength="10"
+                           ng-maxlength="200"
+                           placeholder="title here..."/>
+                           <span class="text-danger" ng-if="form.$submitted">
+                           <span ng-if="form.title.$error.required">title required</span>
+                           <span ng-if="form.title.$error.minlength">min length 10</span>
+                           <span ng-if="form.title.$error.maxlength">max length 200</span>
+                           </span>
+                </div>
+
+                <div class="form-group" ng-if="::post.isKnowledge">
+                    <label>Alias (Optional English title for URL friendly)</label>
+                    <input type="text"
+                           tabindex="2"
+                           class="form-control input-sm"
+                           name="alias"
+                           ng-model="post.alias"
+                           placeholder="URL friendly, usually from title. We will be so happy if you can help system by typing English title, thank you so much."/>
+                </div>
+
+
+                <div class="form-group">
+                    <label>tags</label>
+                    <input type="text"
+                           tabindex="3"
+                           name="tags"
+                           class="form-control input-sm"
+                           ng-model="post.tags"
+                           ng-disabled="post.isDisabled"
+                           ng-required="true"
+                           placeholder="space separated values, for example:  java  c#  php  javascript"/>
+
+                    <div class="text-danger" ng-if="form.$submitted">
+                        <span ng-if="form.tags.$error.required">at least one tag</span>
+                    </div>
+                </div>
+
+
+                <div class="form-group" ng-if="::post.isKnowledge">
+                    <div class="checkbox">
+                        <label>
+                            <input name="isMultipartPost"
+                                   id="isMultipartPost"
+                                   type="checkbox"
+                                   ng-model="post.isMultipartPost"
+                                   ng-disabled="post.isDisabled"/>
+                            is multipart post
+
+                    <span class="text-info"> <i class="fa fa-info-circle"></i>
+                        If your post is multipart post, please check this.
+                    </span>
+                        </label>
+                    </div>
+                </div>
+
+                <markdown-toolbar form-model="post" loaded="editorLoaded" editor-id="editor"/>
+
+                <div class="form-group">
+                    <div class="text-danger" ng-if="form.$submitted">
+                        <span ng-if="form.content.$error.required">content required</span>
+                        <span ng-if="form.content.$error.minlength">min length 5</span>
+                        <span ng-if="form.content.$error.maxlength">max length 20000</span>
+                    </div>
+                    <textarea id="editor" class="form-control textarea-editor"
+                              tabindex="4"
+                              ng-model="post.content"
+                              name="content" ng-required="true"
+                              ng-minlength="5" ng-maxlength="20000"
+                              ng-disabled="post.isDisabled"
+                              style="min-height: 200px;">
+                    </textarea>
+                </div>
+
+            </form>
+
+            <!--end main col-sm-5-->
+        </div>
+        <!-- preview-->
+        <div class="col-sm-6 preview-container">
+
+            <!--bind-html-compile="htmlContent">-->
+            <div class="post-content preview-content"
+                 ng-bind-html="htmlContent">
+            </div>
+        </div>
+
+    </div>
+
+    <div th:replace="post/post-edit-multipart :: modal"></div>
+</div>
+
+
+<div id="imagePanel">
+                       <span ng-show="post.featuredImage">
+                           <img class="attached-img-thumbnail"
+                                ng-attr-src="{{post.featuredImage.absoluteUrlNoCache}}"/>
+                       </span>
+
+    <ul class="uploaded-file-list">
+
+        <li ng-repeat="file in post.uploadedFiles">
+            <img class="attached-img-thumbnail" ng-attr-src="file.absoluteUrlNoCache"/>
+
+            <div style="padding:5px;display: inline-block">
+                <span>{{ [ file.contextReferenceId ] }}</span>
+                <a href="" class="glyphicon glyphicon-picture" data-toggle="tooltip"
+                   data-placement="bottom"
+                   title="set featured image (thumbnail in post list)"
+                   ng-click="setFeaturedImage(file)"></a> |
+
+                <a href="" class="glyphicon glyphicon-edit" data-toggle="tooltip"
+                   data-placement="bottom" title="edit image"
+                   ng-click="showEditImageModal(file)"></a> |
+
+                <a href="" class="glyphicon glyphicon-plus" data-toggle="tooltip"
+                   data-placement="bottom" title="add to content"
+                   ng-click="addImageToContent(file)"></a> |
+
+                <a href="" class="glyphicon glyphicon-trash" data-toggle="tooltip"
+                   data-placement="bottom" title="delete image"
+                   ng-click="deleteFile(file)"></a>
+            </div>
+
+        </li>
+    </ul>
+
+</div>
+
+</body>
+</html>

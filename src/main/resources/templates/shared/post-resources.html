@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<object th:fragment="resources" th:remove="tag">
+
+
+    <script type="text/javascript"
+            th:src="|/js/angular/controllers/multipartPostListController.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/controllers/postAddUpdateController.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/services/contentService.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/services/postService.js?bno=${buildNumber}|"></script>
+
+    <!--comment dependency -->
+    <script type="text/javascript"
+            th:src="|/js/angular/controllers/commentUpdateController.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/controllers/commentManagerController.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/controllers/commentAddController.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/directives/replaceDirective.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/services/commentService.js?bno=${buildNumber}|"></script>
+
+    <script type="text/javascript"
+            th:src="|/js/angular/services/markdownService.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/services/utilService.js?bno=${buildNumber}|"></script>
+
+
+    <script type="text/javascript"
+            th:src="|/js/angular/services/imageService.js?bno=${buildNumber}|"></script>
+
+    <script type="text/javascript" src="/js/cropper/cropper.js"></script>
+    <link type="text/css" href="/js/cropper/cropper.css" rel="stylesheet"/>
+    <script type="text/javascript" src="/js/autosize/autosize.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.appear.js"></script>
+    <script type="text/javascript" src="/js/jquery.sticky-kit.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-scrolltofixed-min.js"></script>
+
+    <link type="text/css" rel="stylesheet" href="/js/google-code-prettify/prettify.css"/>
+    <script type="text/javascript" src="/js/google-code-prettify/prettify.js"></script>
+    <script type="text/javascript" src="/js/showdown.min.js"></script>
+    <script type="text/javascript" src="/js/showdown-youtube.min.js"></script>
+    <script type="text/javascript" src="/js/demo.js"></script>
+
+    <script type="text/javascript"
+            th:src="|/js/angular/controllers/multipartPostController.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/services/multipartPostService.js?bno=${buildNumber}|"></script>
+
+    <script type="text/javascript"
+            th:src="|/js/angular/directives/lineLoadingDirective.js?bno=${buildNumber}|"></script>
+
+
+    <script type="text/javascript"
+            th:src="|/js/angular/directives/youtubeDirective.js?bno=${buildNumber}|"></script>
+
+    <script type="text/javascript"
+            th:src="|/js/angular/directives/bindHtmlCompile.js?bno=${buildNumber}|"></script>
+
+    <script type="text/javascript" src="/js/jquery-input-file-text.js"></script>
+    <script type="text/javascript" src="/js/jquery-handler-toolkit.js"></script>
+
+    <script type="text/javascript"
+            th:src="|/js/angular/directives/markdownToolbarDirective.js?bno=${buildNumber}|"></script>
+
+    <!--end comment dependency -->
+
+</object>
+
+
+</body>
+</html>

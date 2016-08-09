@@ -1,0 +1,142 @@
+<div class="form-group markdown-toolbar">
+
+    <input ng-if="::formModel.showSaveButton"
+           type="submit" class="btn btn-primary btn-sm"
+           tabindex="5"
+           ng-value="::formModel.submitLabel"/>
+
+    <a class="btn btn-default btn-sm btn-bold" ng-click="bold()">
+        <span style="font-weight:bold">B</span>
+    </a>
+
+    <a class="btn btn-default btn-sm btn-italic" ng-click="italic()">
+        <span style="font-style:italic">i</span>
+    </a>
+
+    <a class="btn btn-default btn-sm btn-insert-link" ng-click="insertLink()">
+        <span class="fa fa-link"></span>
+    </a>
+
+
+
+    <a class="btn btn-default btn-sm btn-quote" ng-click="quote()">
+        <span class="fa fa-quote-right"></span>
+    </a>
+
+        <span class="dropdown">
+            <button class="btn btn-default btn-sm dropdown-toggle"
+                    type="button" data-toggle="dropdown">font size
+                <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a class="font-size-h1" ng-click="fontSize('h1')">H1</a></li>
+                <li><a class="font-size-h2" ng-click="fontSize('h2')">H2</a></li>
+                <li><a class="font-size-h3" ng-click="fontSize('h3')">H3</a></li>
+            </ul>
+        </span>
+
+    <a class="btn btn-default btn-sm btn-insert-code" ng-click="insertCode()">
+        <span>insert code</span>
+    </a>
+
+    <a class="btn btn-default btn-sm" ng-click="insertImage()">
+        <span class="glyphicon glyphicon-picture"></span>
+    </a>
+
+    <a class="btn btn-default btn-sm btn-insert-video"
+       ng-if="formModel.showAddYoutubeButton"
+       ng-click="insertYoutube()">
+        <i class="fa fa-youtube-square"></i>
+    </a>
+
+    <input type="hidden" id="testX" value="test"/>
+    <span style="visibility: hidden" id="test">test</span>
+</div>
+
+
+<!-- cropper Modal -->
+<div class="editImageModal modal fade"
+     role="dialog"
+     data-backdrop="static"
+     data-keyboard="false">
+
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">edit photo</h4>
+            </div>
+
+            <div class="modal-body">
+
+                <div ng-if="formModel.featuredImage" style="display:inline-block" class="text-center">
+                    <div><strong>featured</strong></div>
+                    <img class="uploaded-img-thumbnail"
+                         ng-src="{{ formModel.featuredImage.absoluteUrl }}"/>
+                </div>
+                <ul class="uploaded-file-list">
+
+
+                    <li ng-repeat="file in formModel.uploadedFiles" class="text-center">
+                        <a ng-click="selectUploadedImage(file)">
+                            <div> id {{ file.contextReferenceId }}</div>
+                            <img class="uploaded-img-thumbnail"
+                                 ng-src="{{ file.absoluteUrl }}"/>
+                        </a>
+                    </li>
+                </ul>
+
+                <div>
+                    <div ng-if="isUploadingImage" class="text-center">
+                        <div style="display: inline-block">
+                            <line-loading/>
+                        </div>
+                    </div>
+
+                    <div class="image-container text-center" ng-show="selectedImage!=null">
+                    </div>
+
+                    <div ng-if="!isUploadingImage" class="text-center">
+                        <a href="" type="button" class="btn btn-default"
+                           ng-click="uploadImage()">select image to upload</a>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="modal-footer text-center">
+                <div>TIP: mouse scroll or pitch to zoom in out</div>
+
+                <a class="btn btn-link" ng-click="insertImageOnly()">
+                    insert
+                </a>
+
+                <a class="btn btn-link" ng-click="saveAndInsertImage()">
+                    save edit
+                </a>
+
+
+                <a class="btn btn-link" ng-click="setToFeaturedImage()">
+                    featured image
+                </a>
+
+
+                <a class="btn btn-link" ng-click="removeImage()">
+                    delete
+                </a>
+
+
+                <a class="btn btn-link" ng-click="hideEditImageModal()">
+                    close
+                </a>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<!--end cropper -->
+
+
+

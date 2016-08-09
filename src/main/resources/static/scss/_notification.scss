@@ -1,0 +1,101 @@
+/* notification */
+
+.notification-box {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  background-color: $content-background-color;
+  padding: 5px;
+  border: 1px solid $content-border-color;
+}
+
+.notification-tab {
+
+  @include e('notification-tab-link') {
+    border: 1px solid $content-border-color;
+    color: $content-text-color;
+    margin: 1px;
+    padding: 5px;
+
+    &:hover {
+      text-decoration: none;
+      color: $content-text-color;
+    }
+    &:focus {
+      text-decoration: none;
+      color: $content-text-color;
+    }
+
+    @include m('active') {
+      background-color: $content-border-color;
+    }
+
+  }
+  //end notification-tab-link
+
+}
+
+.notification {
+  display: none;
+  padding: 0;
+  margin: 10px 0 0 0;
+  list-style-type: none;
+
+  @include m('active') {
+    display: block;
+  }
+
+  @include e('notification-list') {
+    padding: 0;
+    margin: 0;
+  }
+
+  @include e('notification-link') {
+    display: block;
+    padding: 5px;
+    margin: 0;
+
+    &:hover {
+      background-color: $content-border-color;
+    }
+  }
+
+  @include e('notification-content') {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis // This is where the magic happens
+  }
+
+
+}
+
+.new-notification-count {
+  background-color: $menu-link-high-light-color;
+  display:inline-block;
+  font-size:0.8em;
+  padding:0px 4px;
+  //color: $menu-link-high-light-color;
+  //font-weight: bold;
+}
+
+
+/*
+
+    &::after {
+      z-index: 1;
+      position: absolute;
+      top: -10px;
+      left: 12px;
+      width: 0;
+      height: 0;
+      content: '';
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid #fff;
+    }
+
+*/
+

@@ -1,0 +1,77 @@
+package com.codesanook.filter;
+
+import com.codesanook.interceptor.LoggedInUser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jasypt.util.text.StrongTextEncryptor;
+
+import javax.servlet.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
+
+public class LoggedInUserFilter implements Filter {
+
+    private Log log = LogFactory.getLog(LoggedInUserFilter.class);
+
+    private String ENCRYPTION_PASSWORD = "5432112345";
+    private final String TOKEN_KEY_NAME = "cs-token";
+
+
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest request = (HttpServletRequest) req;
+        //log.debug(String.format("LoggedInUserFilter called at URL %s", request.getRequestURL()));
+
+        LoggedInUser loggedInUser = getLoggedInUser(request);
+        req.setAttribute(LoggedInUser.LOGGED_IN_USER_KEY, loggedInUser);
+        chain.doFilter(req, res);
+    }
+
+    public void init(FilterConfig filterConfig) {
+    }
+
+    public void destroy() {
+    }
+
+    private LoggedInUser getLoggedInUser(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+
+        Map cookieMap = new HashMap();
+        for (Cookie cookie : cookies) {
+            cookieMap.put(cookie.getName(), cookie);
+        }
+
+        String token = null;
+        if (cookieMap.get(TOKEN_KEY_NAME) != null) {
+            Cookie userTokenCookie = (Cookie) cookieMap.get(TOKEN_KEY_NAME);
+            token = userTokenCookie.getValue();
+        }
+        if (token == null) return null;
+
+        LoggedInUser loggedInUser = null;
+        try {
+            StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
+            textEncryptor.setPassword(ENCRYPTION_PASSWORD);
+            String plainText = textEncryptor.decrypt(token);
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JodaModule());
+
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+            mapper.setDateFormat(dateFormat);
+            loggedInUser = mapper.readValue(plainText, LoggedInUser.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return loggedInUser;
+    }
+}

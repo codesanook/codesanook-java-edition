@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<div>
+    <div th:fragment="tags">
+        <div class="panel panel-default panel-margin-bottom">
+            <div class="panel-heading text-center">all tags</div>
+            <div class="panel-body">
+                <a class="btn btn-xs btn-default" style="margin:3px;" th:each="tag : ${tags}"
+                   th:href="@{/post/list/tag/{tagName}(tagName = ${tag.name})}"
+                   th:text="${tag.name}"></a>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

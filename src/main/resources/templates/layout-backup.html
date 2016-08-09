@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head th:with="buildNumber = ${@system.getBuildNumber()}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <object th:replace="shared/meta-tag::meta"/>
+    <object th:replace="shared/resources::resources"/>
+    <script th:inline="javascript" type="text/javascript">
+        /*<![CDATA[*/
+        /*Spring bean*/
+        window.apiEndpoint = /*[[${@env.getProperty("api-endpoint")}]]*/ null;
+        window.loggedInUser = /*[[${loggedInUserDto}]]*/ null;
+        window.facebookAppId = /*[[${@env.getProperty("facebook.app-id")}]]*/ null;
+        window.buildNumber = /*[[${@system.getBuildNumber()}]]*/ null;
+
+        /*]]>*/
+        window.onready = [];
+        window.onFbLoaded = [];
+    </script>
+    <script type="text/javascript" th:src="|/js/angular/codesanookApp.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            for (var i = 0; i < window.onready.length; i++) {
+                window.onready[i]();
+            }
+            //error of multiple bootstrap modal
+            $('.modal').on('shown.bs.modal', function (e) {
+                console.log("add class to body");
+                if (!$('body').hasClass('modal-open')) {
+                    $('body').addClass('modal-open');
+                }
+            });
+
+        });
+
+        $(document).bind("fbLoaded", {key: 'value'}, function (event, arg) {
+            for (var i = 0; i < window.onFbLoaded.length; i++) {
+                window.onFbLoaded[i]();
+            }
+        });
+    </script>
+
+    <script type="text/javascript"
+            th:src="|/js/angular/services/trackingService.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/controllers/baseController.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/services/facebookService.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/controllers/facebookLogInController.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/controllers/navbarController.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript"
+            th:src="|/js/angular/controllers/featuredTagController.js?bno=${buildNumber}|"></script>
+
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                        (i[r].q = i[r].q || []).push(arguments)
+                    }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+                    m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-73592252-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+    <object layout:fragment="head" th:remove="tag"></object>
+</head>
+
+<body ng-app="codesanook" th:with="userId = (${loggedInUser}!= null ? ${loggedInUser.id} : 0)">
+
+<object th:replace="shared/facebook-sdk :: sdk"></object>
+<div th:replace="shared/header :: navbar"></div>
+<object th:replace="shared/alert::alert"></object>
+
+<div layout:fragment="content" th:remove="tag">
+    content will be replaced here
+</div>
+
+<div th:replace="shared/footer :: footer"></div>
+<div th:replace="shared/facebook-login :: modals"></div>
+<div th:replace="shared/waiting-modal :: modal"></div>
+
+</body>
+</html>

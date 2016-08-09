@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>manage user</title>
+
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <form action="/user/manage-user" method="post"
+          th:object="${userAdminEditRequest}">
+
+        <select th:field="*{roles[0].id}">
+            <option value="0">----Select----</option>
+            <option th:each="role : ${allRoles}"
+                    th:value="${role.id}"
+                    th:text="${role.name}">
+            </option>
+        </select>
+
+        <input th:checked="*{isSelected}"/>
+
+        <p><input type="submit" value="send"/></p>
+    </form>
+
+</div>
+</body>
+</html>

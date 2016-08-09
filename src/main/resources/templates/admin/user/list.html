@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>all user</title>
+</head>
+<body>
+<div id="user-list" layout:fragment="content">
+    <h1>All Users</h1>
+    <table>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>IsActivated</th>
+            <th>IsDeleted</th>
+            <th>Action</th>
+        </tr>
+        <tr th:each="profile : ${profileList}">
+            <td th:text="${profile.id}"/>
+            <td th:text="${profile.name}"/>
+            <td th:text="${profile.email}"/>
+            <td >
+               <span th:each="role : ${profile.roles}" th:text="${role.name}"/>
+            </td>
+            <td th:text="${profile.isActivated}"/>
+            <td th:text="${profile.isDeleted}"/>
+            <td>
+                <a class="btn btn-round btn-grey" th:href="|/admin/user/edit/${profile.id}|">edit</a>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

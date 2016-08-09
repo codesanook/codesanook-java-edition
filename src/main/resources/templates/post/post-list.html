@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>codesanook.com : Let's code and have fun!!!</title>
+    <object layout:fragment="head">
+
+        <script type="text/javascript"
+                th:src="|/js/angular/controllers/timeZoneController.js?bno=${buildNumber}|"></script>
+
+        <script th:inline="javascript" type="text/javascript">
+            /*<![CDATA[*/
+            window.timeZoneMillisecond = /*[[${@viewUtils.getUserTimeZone()}]]*/null;
+            /*]]>*/
+        </script>
+
+        <script th:inline="javascript" type="text/javascript">
+            /*<![CDATA[*/
+            window.questionId = /*[[${T(com.codesanook.model.PostTypeEnum).QUESTION.getId()}]]*/null;
+            window.knowledgeId = /*[[${T(com.codesanook.model.PostTypeEnum).KNOWLEDGE.getId()}]]*/null;
+            /*]]>*/
+        </script>
+
+    </object>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div id="home">
+        <div class="container">
+
+
+            <div class="row">
+
+                <div class="col-sm-9 postLists">
+
+                    <ul>
+                        <li  th:each="post,status : ${postResponse.posts}" th:object="${post}"
+                            class="post-wrapper" th:with="postClass = ${@viewUtils.getPostClass(post)}"
+                            th:classappend="${postClass}"
+                            th:attr="id='postId' + *{id} + ''">
+
+                            <div th:fragment="body" class="post-item">
+
+                                <div class="post-header">
+                                    <a th:if="*{postType.id == T(com.codesanook.model.PostTypeEnum).QUESTION.getId()}"
+                                       href="/post/list/type/question">
+                                        <i class="glyphicon glyphicon-question-sign"></i>
+                                    </a>
+                                    <a th:if="*{postType.id == T(com.codesanook.model.PostTypeEnum).KNOWLEDGE.getId()}"
+                                       href="/post/list/type/knowledge">
+                                        <span class="glyphicon glyphicon-book"></span>
+                                    </a>
+                                    : <a th:href="@{/post/details/{alias}/{postId}(alias=*{alias},postId=*{id})}"
+                                         th:text="*{title}">
+                                    Java programming language
+                                </a>
+                                </div>
+
+                                <div class="post-body">
+                                    <div class="row small">
+
+                                        <div class="col-xs-12">
+                                            by
+                                            <a th:href="@{/user/profile/{id}(id=*{user.id})}">
+                                                <img th:src="*{user.profileImageUrl}" class="avatar"/>
+                                                <span th:text="*{user.name}"></span>
+                                            </a>
+                                            <span th:text="*{@viewUtils.formatDate(utcCreateDate)}"></span>
+                                            <a class="tag" th:each="tag : *{tags}"
+                                               th:href="@{/post/list/tag/{tagName}(tagName=${tag})}" th:text="${tag}">
+                                            </a>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-xs-12">
+                                            <a class="featured-image"
+                                               th:href="@{/post/details/{alias}/{postId}(alias=*{alias},postId=*{id})}">
+                                                <img class="center2D" th:src="${@viewUtils.getFeaturedImageUrl(post)}"/>
+                                            </a>
+
+                                            <p class="desc defaultFont" th:utext="*{shortIntroduction}"></p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="post-footer">
+                                    <div class="row">
+                                        <div class="col-xs-6">
+                                            <span>Vote <span th:text="*{pageViewCount}">0</span></span>
+                                            <span>Read <span th:text="*{pageViewCount}">7</span></span>
+                                            <span>Comment <span th:text="*{#lists.size(comments)}">3</span></span>
+                                        </div>
+
+                                        <div class="col-xs-6 text-right">
+                                                <!--for seo-->
+                                                <a th:href="@{/post/details/{alias}/{postId}(alias = *{alias},postId = *{id})}"
+                                                   style="display: inline-block;margin-left: 10px">
+                                                    read more
+                                                </a>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                        </li>
+                    </ul>
+
+                    <div class="text-center" th:utext="${pagination}"></div>
+
+                </div>
+                <!--end main post list-->
+
+
+                <!--all tags-->
+                <div class="col-sm-3">
+                    <div th:replace="shared/facebook-share :: share"></div>
+                    <div th:replace="shared/facebook-page :: page"></div>
+                    <div th:replace="shared/tag :: tags"></div>
+                </div>
+            </div>
+            <!--end main row-->
+        </div>
+    </div>
+
+    <div ng-controller="timeZoneController"></div>
+</div>
+<!--end container-->
+</body>
+</html>

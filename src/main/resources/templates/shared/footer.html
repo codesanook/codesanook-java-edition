@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<object th:fragment="footer" th:remove="tag">
+
+    <div class="row" style="margin-top:30px">
+
+        <div class="col-sm-1"></div>
+
+        <div class="col-sm-10">
+<div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-4">
+                    <h2 class="center">About Us</h2>
+                    <hr/>
+                    <ul>
+                        <li><a href="/home/about">about codesanook</a></li>
+                        <li>
+                            <a href="mailto:admin@codesanook.com?subject=contact "
+                               target="_blank">contact us</a>
+                        </li>
+                        <li><a href="/home/credit">credit</a></li>
+                    </ul>
+                </div>
+                <div class="col-sm-4">
+                    <h2 class="center">Join Us</h2>
+                    <hr/>
+                    <ul>
+                        <li><a href="mailto:admin@codesanook.com?subject=feedback "
+                               target="_blank">feedback</a></li>
+                        <li>
+                            <a href="mailto:admin@codesanook.com?subject=become a writer "
+                               target="_blank">become a writer</a>
+                        </li>
+                        <li>
+                            <a href="mailto:admin@codesanook.com?subject=become a partner "
+                               target="_blank">become a partner</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-sm-4">
+                    <h2 class="center">Get Connected</h2>
+                    <hr/>
+                    <ul>
+                        <li><a href="https://www.facebook.com/codesanookpage"
+                               target="_blank">
+                            facebook page
+                        </a></li>
+                        <li>events</li>
+                    </ul>
+                </div>
+            </div>
+</div>
+        </div>
+
+        <div class="col-sm-1"></div>
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <p>
+                &copy; <span th:with="today = ${#calendars.createNow()}"
+                             th:text="${#calendars.format(today,'yyyy')}"></span>
+                proudly powered by Spring Boot, Java, Linux, MySQL
+            <span th:with="now = ${T(org.joda.time.DateTime).now()}"
+                  th:text="${@viewUtils.formatDate(now)}"></span>
+            </p>
+        </div>
+    </div>
+</object>
+
+</body>
+</html>

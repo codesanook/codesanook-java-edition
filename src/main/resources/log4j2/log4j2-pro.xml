@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+
+    <Properties>
+        <Property name="logPath">/work/static/logs</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <RollingFile name="rollingFile" fileName="${sys:logPath}/pro.txt"
+                     filePattern="${sys:logPath}/pro-%i.txt">
+            <PatternLayout>
+                <Pattern>%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="5MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="7"/>
+        </RollingFile>
+
+        <Async name="async">
+            <AppenderRef ref="rollingFile"/>
+            <BufferSize>1</BufferSize>
+        </Async>
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="ERROR">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="async"/>
+        </Root>
+        <Logger name="com.codesanook" level="info"/>
+
+    </Loggers>
+</Configuration>

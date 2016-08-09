@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+<nav th:fragment="navbar" class="nav-bar" ng-controller="navbarController">
+    <div class="nav-bar__wrapper">
+
+        <div class="nav-bar__group-menu">
+            <ul class="nav-menu">
+
+                <li class="nav-menu__menu-list">
+                    <a class="nav-menu__menu-link nav-menu__menu-link--collapse"
+                       href=""
+                       ng-click="toggleCollapseMenu($event)">
+                        <span th:text="#{menu.main.toggle-button}"></span>
+                        <i class="caret"></i>
+                    </a>
+                </li>
+
+
+                <li class="nav-menu__menu-list">
+                    <a class="nav-menu__menu-link"
+                       href="/">
+                        <i class="fa fa-home"></i>
+                        <span th:text="#{menu.main.home}" class="tablet-hide"></span>
+                    </a>
+                </li>
+
+                <li class="nav-menu__menu-list">
+                    <a class="nav-menu__menu-link" href="" ng-click="toggleSubMenu($event)">
+                        <i class="fa fa-lightbulb-o"></i>
+                        <span th:text="#{menu.main.knowledge}" class="mobile-hide"></span>
+                        <i class="caret"></i>
+                    </a>
+
+                    <ul class="nav-menu nav-menu--sub nav-menu--active">
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub">
+                            <a class="nav-menu__menu-link"
+                               th:attr="ng-click='listArticle($event,\'' + #{menu.main.articles} + '\')'"
+                               href="/post/list/sub-type/article">
+                                <i class="fa fa-book"></i>
+                                <span th:text="#{menu.main.articles}"></span>
+                            </a>
+                        </li>
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub">
+                            <a class="nav-menu__menu-link"
+                               th:attr="ng-click='listTip($event,\'' + #{menu.main.tips} + '\')'"
+                               href="/post/list/sub-type/tip">
+                                <i class="fa fa-info"></i>
+                                <span th:text="#{menu.main.tips}"></span>
+                            </a>
+                        </li>
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub">
+                            <a class="nav-menu__menu-link"
+                               th:attr="ng-click='listVideo($event,\'' + #{menu.main.free-training-videos} + '\')'"
+                               href="/post/list/sub-type/video">
+                                <i class="fa fa-film"></i>
+                                <span th:text="#{menu.main.free-training-videos}"></span>
+                            </a>
+                        </li>
+                    </ul>
+
+                </li>
+
+                <li class="nav-menu__menu-list">
+                    <a class="nav-menu__menu-link"
+                       th:attr="ng-click='listQuestion($event,\'' + #{menu.main.questions-answers} + '\')'"
+                       href="/post/list/type/question">
+                        <i class="fa fa-question"></i>
+                        <span th:text="#{menu.main.questions-answers}" class="mobile-hide"></span>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+
+
+    </div>
+    <!--wrapper-->
+
+    <div class="nav-bar__group-menu--right">
+
+        <div class="nav-bar__group-menu">
+            <ul class="nav-menu">
+
+
+                <li class="nav-menu__menu-list">
+                    <a class="nav-menu__menu-link"
+                       href="" ng-click="toggleSubMenu($event)">
+                        <i class="fa fa-plus"></i>
+                        <span th:text="#{menu.main.create}" class="tablet-hide"></span>
+                    </a>
+
+                    <ul class="nav-menu nav-menu--sub-right nav-menu--active">
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub">
+                            <a class="nav-menu__menu-link"
+                               th:attr="ng-click='newQuestion($event,\'' + #{menu.main.create-question} + '\')'"
+                               href="/post/create?type=1">
+                                <i class="fa fa-question"></i>
+                                <span th:text="#{menu.main.create-question}"></span>
+                            </a>
+                        </li>
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub"
+                            th:if="${@viewUtils.isAuthor(loggedInUser)}">
+                            <a class="nav-menu__menu-link"
+                               th:attr="ng-click='newArticle($event,\'' +   #{menu.main.create-article} +    '\')'"
+                               href="/post/create?type=2&sub-type=1">
+                                <i class="fa fa-book"></i>
+                                <span th:text="#{menu.main.create-article}"></span>
+                            </a>
+                        </li>
+
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub"
+                            th:if="${@viewUtils.isAuthor(loggedInUser)}">
+                            <a class="nav-menu__menu-link"
+                               th:attr="ng-click='newTip($event,\'' +   #{menu.main.create-tip} +    '\')'"
+                               href="/post/create?type=2&sub-type=2">
+                                <i class="fa fa-info"></i>
+                                <span th:text="#{menu.main.create-tip}"></span>
+                            </a>
+                        </li>
+
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub"
+                            th:if="${@viewUtils.isAuthor(loggedInUser)}">
+                            <a class="nav-menu__menu-link"
+                               th:attr="ng-click='newVideo($event,\'' +   #{menu.main.create-video} +    '\')'"
+                               href="/post/create?type=2&sub-type=3">
+                                <i class="fa fa-film"></i>
+                                <span th:text="#{menu.main.create-video}"></span>
+                            </a>
+                        </li>
+
+
+                    </ul>
+                </li>
+
+
+                <li class="nav-menu__menu-list" ng-controller="notificationController">
+                    <a class="nav-menu__menu-link" href=""
+                       ng-click="toggleNotification($event)">
+                        <i class="fa fa-bell-o"></i>
+                        <span ng-bind="newNotification.totalCount"
+                              ng-class="{'new-notification-count':  newNotification.totalCount > 0}">
+                        </span>
+                    </a>
+
+                    <div class="notification-box">
+                        <div class="notification-tab">
+                            <a class="notification-tab__notification-tab-link notification-tab__notification-tab-link--active"
+                               href=""
+                               ng-click="switchTab($event,0)">
+                                <span th:text="#{notification.new-knowledge}"></span>
+                            </a>
+
+                            <a class="notification-tab__notification-tab-link" href=""
+                               ng-click="switchTab($event,1)">
+                                <span th:text="#{notification.new-question}"></span>
+                            </a>
+                        </div>
+
+                        <ul class="notification notification--active">
+                            <li ng-repeat="noti in notificationList.knowledge track by noti.postId"
+                                class="notification__notification-list">
+                                <a class="notification__notification-link"
+                                   ng-href="/post/details/{{ encodeUrl(noti.postAlias) }}/{{ noti.postId }}">
+                                    <div class="notification__notification-content"
+                                         ng-bind="noti.postTitle">
+                                    </div>
+                                </a>
+                            </li>
+
+                        </ul>
+                        <ul class="notification">
+                            <li ng-repeat="noti in notificationList.questions track by noti.postId"
+                                class="notification__notification-list">
+                                <a class="notification__notification-link"
+                                   ng-href="/post/details/{{ encodeUrl(noti.postAlias)  }}/{{ noti.postId }}">
+                                    <div class="notification__notification-content"
+                                         ng-bind="noti.postTitle">
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </li>
+
+            </ul>
+        </div>
+
+        <div class="nav-bar__group-menu  nav-bar__group-menu--right">
+            <ul id="collapse-main" class="nav-menu nav-menu--right nav-menu--collapse">
+                <!--user log in-->
+                <li class="nav-menu__menu-list nav-menu__menu-list--collapse" th:if="${loggedInUser}">
+                    <a class="nav-menu__menu-link"
+                       th:with="profileImageUrl = ${loggedInUser.profileImageUrl}"
+                       href=""
+                       ng-click="toggleSubMenu($event)">
+                        <img th:unless="${profileImageUrl}" src="/img/icon-user-placeholder.png"
+                             style="width:20px;height:20px;"/>
+                        <img th:if="${profileImageUrl}" th:src="${profileImageUrl}"
+                             class="avatar" style="width:20px;height:20px;"/>
+                        <span class="caret"></span>
+                    </a>
+
+                    <ul id="user"
+                        class="nav-menu nav-menu--sub-right nav-menu--active nav-menu--sub-collapse">
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub">
+                            <a class="nav-menu__menu-link"
+                               th:href="@{/user/profile/{userId}(userId = ${loggedInUser.id})}">
+                                <i class="fa fa-user"></i>
+                                <span th:text="#{menu.user.view-profile}"></span>
+                            </a>
+                        </li>
+
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub">
+                            <a class="nav-menu__menu-link"
+                               href="/user/logout">
+                                <i class="glyphicon glyphicon-log-out"></i>
+                                <span th:text="#{menu.user.log-out}"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!--end user log in -->
+
+                <!-- user not logged in-->
+
+                <li class="nav-menu__menu-list nav-menu__menu-list--collapse">
+                    <a class="nav-menu__menu-link"
+                       th:unless="${loggedInUser}"
+                       ng-controller="facebookLogInButtonController"
+                       ng-click="showIntroLogInModal()">
+                        <span class="facebook-log-in" th:text="#{login.facebook-log-in}"></span>
+                    </a>
+                </li>
+                <!-- end user not logged in-->
+
+                <!--begin language -->
+
+                <li class="nav-menu__menu-list nav-menu__menu-list--collapse">
+                    <a class="nav-menu__menu-link"
+                       href="" ng-click="toggleSubMenu($event)">
+                        <img class="lang-mid-icon"
+                             th:src="|/img/${@viewUtils.getCurrentLanguage()}-icon.png|"/>
+                        <i class="caret"></i>
+                    </a>
+                    <ul id="language"
+                        class="nav-menu nav-menu--sub-right nav-menu--active nav-menu--sub-collapse">
+
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub">
+                            <a class="nav-menu__menu-link"
+                               href="/?lang=th" ng-click="changeLanguage($event,'th')">
+                                <img class="lang-icon" src="/img/th-icon.png"/>
+                                ภาษาไทย
+                            </a>
+                        </li>
+
+                        <li class="nav-menu__menu-list nav-menu__menu-list--sub">
+                            <a class="nav-menu__menu-link"
+                               href="/?lang=en" ng-click="changeLanguage($event,'en')">
+                                <img class="lang-icon" src="/img/en-icon.png"/>
+                                English
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <!--end language-->
+            </ul>
+        </div>
+
+    </div>
+
+    </div>
+    <!-- main group right-->
+
+</nav>
+
+
+</body>
+</html>

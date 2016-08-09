@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>c://logs/log.test.xml</file>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.log4j.XMLLayout">
+                <locationInfo>true</locationInfo>
+            </layout>
+        </encoder>
+    </appender>
+    <appender name="HTML" class="ch.qos.logback.core.FileAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="ch.qos.logback.classic.html.HTMLLayout">
+                <pattern>%relative%thread%mdc%level%logger%msg</pattern>
+            </layout>
+        </encoder>
+        <file>c://logs/log.test.html</file>
+    </appender>
+
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="HTML"/>
+    </root>
+
+    <logger name="org.springframework.web" level="DEBUG"/>
+    <logger name="com.codesanook" level="DEBUG"/>
+    <logger name="org.springframework.orm.jpa" level="debug"/>
+    <logger name="org.hibernate.transaction" level="debug"/>
+    <logger name="org.springframework.transaction" level="debug"/>
+    <logger name="org.springframework.jdbc" level="debug"/>
+
+</configuration>

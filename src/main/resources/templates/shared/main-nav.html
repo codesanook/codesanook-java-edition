@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+<div th:fragment="nav">
+    <div class="container">
+    <ul id="main-nav">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Articles</a></li>
+        <li><a href="#">Questions</a></li>
+        <li><a href="#">Videos</a></li>
+        <li><a href="#">Learning Path</a></li>
+    </ul>
+
+    <ul id="main-tags">
+        <li><a href="#">Java</a></li>
+        <li><a href="#">C#</a></li>
+        <li><a href="#">.NET</a></li>
+        <li><a href="#">SQL</a></li>
+        <li><a href="#">Android</a></li>
+        <li><a href="#">iOS</a></li>
+    </ul>
+
+    <div class="form-group">
+        <label for="sel1">order by</label>
+        <select class="form-control" id="sel1">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+        </select>
+    </div>
+    </div>
+</div>
+
+</body>
+</html>

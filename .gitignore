@@ -1,0 +1,24 @@
+*.sw?
+.#*
+*#
+*~
+.classpath
+.project
+.settings
+bin
+build
+target
+dependency-reduced-pom.xml
+*.sublime-*
+/scratch
+.gradle
+README.html
+.idea
+*.iml
+log4j2.xml
+application-local.properties
+node_modules
+#ignore sass cache
+.sass-cache
+.sass-cache/*
+

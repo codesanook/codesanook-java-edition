@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+<object  th:with="m = ( ${#vars.containsKey('metaTag')} ? ${metaTag} : ${T(com.codesanook.dto.MetaTag).getInstance()} )"
+         th:remove="tag" th:fragment="meta">
+    <meta property="og:url" th:attr="content=${m.ogUrl}"/>
+    <meta property="og:type" th:attr="content=${m.ogType}"/>
+    <meta property="og:title" th:attr="content=${m.ogTitle}"/>
+    <meta property="og:description" th:attr="content=${m.ogDescription}"/>
+    <meta property="og:image" th:attr="content=${m.ogImage}"/>
+    <meta property="fb:app_id" th:attr="content=${m.fbAppId}" />
+</object>
+
+</body>
+</html>

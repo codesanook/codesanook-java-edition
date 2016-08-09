@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+
+<body>
+<div th:fragment="modals" th:remove="tag">
+
+    <div id="fbLogInModalSet" class="row" ng-controller="facebookLogInController">
+        <div class="col-sm-12">
+            <!-- intro log in modal -->
+            <div id="introLogIn" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-lg">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" th:text="#{login.title}"></h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-sm-1"></div>
+                                <div class="col-sm-10">
+                                    <h3>เราจำเป็นต้องให้คุณ log in ด้วย facebook เนื่องจาก</h3>
+
+                                    <p>
+                                        codesanook.com ต้องการสร้าง community ที่สามารถใช้งานได้ง่าย
+                                        ลดขั้นตอนการลงทะเบียนที่ต้องกรอกข้อมูลต่างๆ
+                                        เราเพียงต้องการข้อมูลเหล่านี้จาก facebook ของคุณเท่านี้
+                                    </p>
+                                    <ul>
+                                        <li>ชื่อของคุณ</li>
+                                        <li>อีเมล์</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-1"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="text-center">
+
+                                <a class="btn btn-social btn-facebook"
+                                   ng-click="logIn()">
+                                    <i class="fa fa-facebook"></i>
+                                    <span th:text="#{login.facebook-log-in}"></span>
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <!--end column-->
+
+    </div>
+
+</div>
+
+</body>
+</html>

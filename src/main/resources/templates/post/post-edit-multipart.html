@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+
+<div th:fragment="modal" th:remove="tag">
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="multipartPostModal" role="dialog"
+         data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-body">
+
+                    <div ng-controller="multipartPostManagerController">
+
+                        <h4 ng-if="!selectedMultipartPost.id" class="text-info">
+                            <i class="fa fa-info-circle"></i>
+                            No selected multipart post, please search or create new one.
+                        </h4>
+
+                        <fieldset>
+                            <legend class="bg-primary">step 1 - select multipart post</legend>
+
+                            <ul class="nav nav-tabs">
+                                <li class="active">
+                                    <a data-toggle="tab" href="#search">search</a>
+                                </li>
+                                <li>
+                                    <a data-toggle="tab" href="#create">create</a>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <div id="search" class="tab-pane fade in active" style="padding-top: 30px;">
+
+                                    <form name="searchForm" role="form" novalidate
+                                          ng-submit="searchMultipartPost(searchForm)">
+                                        <div class="form-group">
+                                            <label for="searchMultipartPost">existing multipart post title to
+                                                search</label>
+                                            <input name="searchedMultipartPost"
+                                                   type="text" class="form-control"
+                                                   id="searchMultipartPost"
+                                                   ng-model="searchedMultipartPost.title"
+                                                   ng-required="true"
+                                                   ng-minlength="3"
+                                                   ng-maxlength="100">
+
+                                            <div class="text-danger" ng-if="searchForm.$submitted">
+                            <span ng-if="searchForm.searchedMultipartPost.$error.required">
+                            title required
+                            </span>
+                            <span ng-if="searchForm.searchedMultipartPost.$error.minlength">
+                            min length 3
+                            </span>
+                            <span ng-if="searchForm.searchedMultipartPost.$error.maxlength">
+                            max length 100
+                            </span>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-default">
+                                            search multipart post
+                                        </button>
+                                    </form>
+
+
+                                    <div class="text-center" ng-show="searchedMultipartPost.isSearching">
+                                        <div style="display: inline-block">
+                                            <line-loading/>
+                                        </div>
+                                    </div>
+
+                                    <div ng-if="searchedMultipartPostResult.length > 0" style="margin-top:30px">
+
+                                        <h4> search result :</h4>
+
+                                        <div class="text-info"><i class="fa fa-info-circle"></i>
+                                            Click to select multipart post.
+                                        </div>
+                                        <ul class="multipart-post">
+                                            <li class="list" ng-repeat="item in searchedMultipartPostResult">
+                                                <a ng-click="selectMultipartPost(item.id)">
+                                                    <div>
+                                                        {{ item.title }}
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div id="create" class="tab-pane fade" style="padding-top: 30px;">
+
+                                    <div ng-if="newMultipartPost.isSaving" class="text-center">
+                                        <div style="display: inline-block">
+                                            <line-loading/>
+                                        </div>
+                                    </div>
+
+                                    <form name="createForm" role="form" novalidate
+                                          ng-submit="createMultipartPost(createForm)">
+                                        <div class="form-group">
+                                            <label for="newMultipartPost">new multipart post title to create</label>
+                                            <input name="newMultipartPost"
+                                                   type="text" class="form-control"
+                                                   id="newMultipartPost"
+                                                   ng-model="newMultipartPost.title"
+                                                   ng-required="true"
+                                                   ng-minlength="5"
+                                                   ng-maxlength="100"
+                                                   ng-disabled="newMultipartPost.isSaving"
+                                                    >
+
+                                            <div class="text-danger" ng-if="createForm.$submitted">
+                            <span ng-if="createForm.newMultipartPost.$error.required">
+                            title required
+                            </span>
+                            <span ng-if="createForm.newMultipartPost.$error.minlength">
+                            min length 5
+                            </span>
+                            <span ng-if="createForm.newMultipartPost.$error.maxlength">
+                            max length 100
+                            </span>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-default"
+                                                ng-disabled="newMultipartPost.isSaving">
+                                            create
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+
+                            <div ng-if="selectedMultipartPost.isLoading" class="text-center">
+                                <div style="display: inline-block">
+                                    <line-loading/>
+                                </div>
+                            </div>
+
+                        </fieldset>
+
+
+                        <fieldset ng-if="selectedMultipartPost.id" style="margin-top:30px">
+                            <legend class="bg-primary">step 2 - select post</legend>
+
+                            <form name="searchedPostForm" role="form" novalidate
+                                  ng-submit="searchPost(searchedPostForm)">
+
+                                <div class="form-group">
+                                    <div class="text-info">
+                                        <i class="fa fa-info-circle"></i>
+                                        Search post to add to post list.
+                                    </div>
+                                    <label for="searchedPost">post title</label>
+                                    <input name="searchedPost"
+                                           type="text" class="form-control"
+                                           id="searchedPost"
+                                           ng-model="searchedPost.title"
+                                           ng-required="true"
+                                           ng-minlength="3"
+                                           ng-maxlength="100"
+                                           ng-disabled="searchedPost.loading">
+
+                                    <div class="text-danger" ng-if="searchedPostForm.$submitted">
+                            <span ng-if="searchedPostForm.searchedPost.$error.required">
+                            title required
+                            </span>
+                            <span ng-if="searchedPostForm.searchedPost.$error.minlength">
+                            min length 3
+                            </span>
+                            <span ng-if="searchedPostForm.searchedPost.$error.maxlength">
+                            max length 100
+                            </span>
+                                    </div>
+                                </div>
+
+
+                                <button type="submit" class="btn btn-default"
+                                        ng-disabled="searchedPost.isLoading">
+                                    search post
+                                </button>
+                            </form>
+
+                            <div ng-if="searchedPost.isLoading" class="text-center">
+                                <div style="display: inline-block">
+                                    <line-loading/>
+                                </div>
+                            </div>
+
+
+                            <div ng-if="searchedPostResult.length > 0">
+                                <h4> search result :</h4>
+
+                                <div class="text-info">
+                                    <i class="fa fa-info-circle"></i>
+                                    Click to select post.
+                                </div>
+
+                                <ul>
+                                    <li ng-repeat="item in searchedPostResult" class="list">
+                                        <a ng-click="addToMultipartPostItem(item)">
+                                            <div>
+                                                {{ item.title }}
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+
+                            <div style="margin-top: 30px;">
+                                <div ng-if="selectedMultipartPost.isUpdating" class="text-center">
+                                    <div style="display: inline-block">
+                                        <line-loading/>
+                                    </div>
+                                </div>
+                                <form name="updateMultipartPostForm" role="form" novalidate
+                                      ng-submit="updateMultipartPost(updateMultipartPostForm)">
+
+                                    <div ng-show="selectedMultipartPost.multipartPostItems.length > 0"
+                                         style="margin-top:30px">
+
+                                        <h4>post list</h4>
+
+                                        <div class="text-info">
+                                            <i class="fa fa-info-circle"></i>
+                                            Drag to arrange order.
+                                        </div>
+
+                                        <ul class="multipart-post-item" ui-sortable="sortableOptions"
+                                            ng-model="selectedMultipartPost.multipartPostItems">
+                                            <li ng-repeat="item in selectedMultipartPost.multipartPostItems"
+                                                class="text-left list bg-info">
+                                                <div class="row">
+                                                    <div class="col-xs-8 post-title">
+                                                        <span>{{item.post.title}}</span>
+                                                    </div>
+                                                    <div class="col-xs-4 text-center">
+                                                        <a ng-click="removeMultipartPostItem(item)">
+                                                            <i class="fa fa-times"></i> remove
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="clear"></div>
+
+                                    <div class="form-group">
+
+                                        <div class="text-info"><i class="fa fa-info-circle"></i>
+                                            You can also edit multipart post title.
+                                        </div>
+                                        <label for="selectedMultipartPostTitle">selected multipart post</label>
+                                        <input name="selectedMultipartPostTitle"
+                                               type="text" class="form-control"
+                                               id="selectedMultipartPostTitle"
+                                               ng-model="selectedMultipartPost.title"
+                                               ng-required="true"
+                                               ng-minlength="5"
+                                               ng-maxlength="100"
+                                               ng-disabled="searchedPost.loading">
+
+                                        <div class="text-danger" ng-if="updateMultipartPostForm.$submitted">
+                            <span ng-if="updateMultipartPostForm.selectedMultipartPostTitle.$error.required">
+                            title required
+                            </span>
+                            <span ng-if="updateMultipartPostForm.selectedMultipartPostTitle.$error.minlength">
+                            min length 5
+                            </span>
+                            <span ng-if="updateMultipartPostForm.selectedMultipartPostTitle.$error.maxlength">
+                            max length 100
+                            </span>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <div class="col-xs-6 text-center">
+                                            <button type="submit" class="btn btn-primary">update</button>
+                                        </div>
+
+                                        <div class="col-xs-6 text-center">
+                                            <a class="btn btn-primary" ng-click="closeModal()">
+                                                done
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </fieldset>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+
+</body>
+</html>

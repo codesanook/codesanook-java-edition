@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>Log In | Codesanook.com</title>
+
+    <object layout:fragment="head">
+        <script type="text/javascript">
+            window.onFbLoaded.push(function () {
+                var scope = angular.element($("#mainFbLogIn")).scope();
+                scope.$apply(function () {
+                    var redirectUrl = "/";
+                    scope.showIntroLogInModal(redirectUrl);
+                });
+
+            });
+        </script>
+    </object>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="text-center" id="mainFbLogIn" ng-controller="facebookLogInButtonController"
+         style="min-height:200px">
+        <div style="margin-top:100px;">
+            <a class="btn btn-social btn-facebook btn-lg"
+               ng-show="facebookSdkLoaded"
+               ng-click="showIntroLogInModal()">
+                <span class="fa fa-facebook"></span>
+                Log in with facebook
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- end container-->
+
+</body>
+</html>

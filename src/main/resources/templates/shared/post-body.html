@@ -1,0 +1,125 @@
+<div th:fragment="body" class="post-item" ng-controller="postItemController"
+     th:attr="ng-init='post.id = ' + ${post.id}  + ''"
+     th:with="isPostDetailsPage = ${#vars.containsKey('isPostDetails')}">
+
+    <div class="post-header">
+        <a th:if="*{postType.id == T(com.codesanook.model.PostTypeEnum).QUESTION.getId()}"
+           href="/post/list/type/question">
+            <span class="glyphicon glyphicon-question-sign"></span> Question
+        </a>
+        <a th:if="*{postType.id == T(com.codesanook.model.PostTypeEnum).ARTICLE.getId()}"
+           href="/post/list/type/article">
+            <span class="glyphicon glyphicon-book"></span> Article
+        </a>
+        : <a th:href="@{/post/details/{alias}/{postId}(alias=*{alias},postId=*{id})}"
+             th:text="*{title}">
+        Java programming language
+    </a>
+    </div>
+
+    <div class="post-body">
+        <div class="row">
+            <div class="col-xs-6">
+                by
+                <a th:href="@{/user/profile/{id}(id=*{user.id})}">
+                    <img th:src="*{user.profileImageUrl}" class="avatar-thumbnail"/>
+                    <span th:text="*{user.name}"></span>
+                </a>
+                <span th:text="*{@viewUtils.formatDate(utcCreateDate)}"></span>
+                <i class="glyphicon glyphicon-tag"></i>
+                <a class="tag" th:each="tag : *{tags}"
+                   th:href="@{/post/list/tag/{tagName}(tagName=${tag})}" th:text="${tag}">
+                </a>
+            </div>
+
+
+            <div class="col-xs-6 text-right"
+                 th:if="${ @viewUtils.isOwningResource(loggedInUser,post.user.id)
+                     || @viewUtils.isAdmin(loggedInUser) }">
+
+                <a class="btn btn-default btn-sm"
+                   th:href="@{/post/edit/{postId}(postId = *{id})}">
+                    <i class="fa fa-pencil-square-o"></i>
+                    edit post
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <th:object th:if="${!isPostDetailsPage}" th:remove="tag">
+                <a class="featured-image"
+                   th:href="@{/post/details/{alias}/{postId}(alias=*{alias},postId=*{id})}">
+                    <span th:if="*{postType.id == T(com.codesanook.model.PostTypeEnum).QUESTION.getId()}">
+                        <img class="center2D"
+                             th:src="*{featuredImage !=null ? featuredImage.absoluteUrl : '/img/featured-image-question.jpg'}"/>
+                    </span>
+                    <span th:if="*{postType.id == T(com.codesanook.model.PostTypeEnum).ARTICLE.getId()}">
+                        <img class="center2D" th:src="*{featuredImage !=null ? featuredImage.absoluteUrl
+                        : '/img/featured-image-article.jpg'}"/>
+                    </span>
+                </a>
+
+                <div ng-if="post.isLoading" class="text-center">
+                    <div style="display: inline-block">
+                        <line-loading/>
+                    </div>
+                </div>
+
+                <p class="desc"
+                   ng-show="!post.isContentShown"
+                   th:utext="*{shortIntroduction}">
+                </p>
+
+                <p class="desc"
+                   ng-show="post.isContentShown"
+                   ng-bind-html="post.htmlContent">
+                </p>
+            </th:object>
+
+            <th:object th:if="${isPostDetailsPage}" th:remove="tag">
+                <p class="desc"
+                   ng-if="!post.isContentShown"
+                   th:utext="*{htmlContent}">
+                </p>
+            </th:object>
+        </div>
+
+    </div>
+
+    <div class="post-footer">
+        <div class="row">
+            <div class="col-xs-6">
+                <span>Vote <span th:text="*{pageViewCount}">0</span></span>
+                <span>Read <span th:text="*{pageViewCount}">7</span></span>
+                <span>Comment <span th:text="*{#lists.size(comments)}">3</span></span>
+            </div>
+
+            <div class="col-xs-6 text-right">
+
+                <th:object th:if="!${isPostDetailsPage}" th:remove="tag">
+
+                    <a ng-click="showPostContent()"
+                       ng-if="!post.isContentShown">
+                        <i class="fa fa-caret-down"></i>
+                        read more
+                    </a>
+
+                    <a ng-click="hidePostContent()"
+                       ng-if="post.isContentShown">
+                        <i class="fa fa-caret-up"></i>
+                        less
+                    </a>
+
+                    <!--for seo-->
+                    <a th:href="@{/post/details/{alias}/{postId}(alias = *{alias},postId = *{id})}"
+                       style="display: inline-block;margin-left: 10px">
+                        <i class="fa fa-external-link"></i> full screen
+                    </a>
+                </th:object>
+            </div>
+        </div>
+    </div>
+
+</div>
+

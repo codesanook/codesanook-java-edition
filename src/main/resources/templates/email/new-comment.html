@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:remove="all">new comment</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body th:object="${newComment}">
+
+<p>
+    Hello <span th:text="*{receiver}"></span>
+</p>
+<br/>
+
+
+<p th:inline="text">
+    <strong>[[*{commentator}]]</strong> has just commented on
+    <strong>
+        <a th:href="*{postUrl}" th:text="*{postTitle}"></a>
+    </strong>.
+</p>
+
+<p>
+    Please follow this link to check this comment <a th:href="*{postUrl}" th:text="*{postUrl}"></a> .
+</p>
+
+<br/>
+
+<p>
+    We are looking forward to see you again.
+</p>
+<br/>
+<br/>
+
+<p> Thanks,<br/>
+    codesanook team
+</p>
+</body>
+</html>

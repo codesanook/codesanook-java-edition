@@ -1,0 +1,28 @@
+package com.codesanook.com.codesanook.test.apicontroller.v1;
+
+import com.codesanook.dto.posts.PostDto;
+import com.codesanook.service.RedisService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.TimeUnit;
+
+//@RestController
+//@RequestMapping("/api/caches")
+public class CacheController {
+
+    private RedisService redisService ;
+
+    @Autowired
+    public CacheController(RedisService redisService) {
+        this.redisService = redisService;
+    }
+
+    @RequestMapping("/post")
+    public void addPost(@RequestBody PostDto postDto) throws JsonProcessingException {
+       redisService.set(postDto.getCacheKey(),postDto,1, TimeUnit.HOURS);
+    }
+}

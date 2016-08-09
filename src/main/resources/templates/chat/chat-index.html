@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>chat | Codesanook.com</title>
+
+    <object layout:fragment="head">
+        <script type="text/javascript" src="/js/strophe.js"></script>
+        <script type="text/javascript" src="/js/angular-controllers/chatIndexController.js"></script>
+        <script type="text/javascript">
+
+            //var jq = $.noConflict();
+            $(document).ready(function () {
+                $('.nav-tabs a').click(function(event){
+                    event.preventDefault();
+                    $(this).tab('show');
+                })
+            });
+        </script>
+
+
+    </object>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row" ng-controller="chatIndexController">
+
+        <div class="col-sm-3"></div>
+        <div class="col-sm-6">
+            <h1 class="center">Chat</h1>
+
+            <form class="form" role="form" method="post" novalidate>
+                <div class="form-group">
+                    <label for="username">username</label>
+                    <input type="text" name="username" class="form-control"
+                           ng-model="username"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">password</label>
+                    <input type="password" name="password" class="form-control"
+                           ng-model="password"/>
+                </div>
+
+                <div class="form-group text-right">
+                    <input type="button" class="btn btn-primary btn-lg"
+                           value="connect" ng-click="connectServer()"/>
+
+                    <input type="button" class="btn btn-primary btn-lg"
+                           value="log" ng-click="log('test')"/>
+
+                    <input type="button" class="btn btn-primary btn-lg"
+                           value="ping" ng-click="sendPing()"/>
+
+                    <input type="button" class="btn btn-primary btn-lg"
+                           value="disconnect" ng-click="disconnectServer()"/>
+                </div>
+            </form>
+            <div ng-bind-html="logOutput"></div>
+
+            <!--tabs-->
+            <h2>Dynamic Tabs</h2>
+
+
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a id="linkChatRooms" href="#chatRooms">chat rooms</a>
+                </li>
+
+                <li ng-repeat="room in allChatRooms | filter: activeChatRoomFilter">
+                    <a data-toggle="tab" ng-attr-href="{{ '#tab' + $index}}" ng-attr-id="{{ 'linkTab' + room.jid }}">
+                        {{room.name}}
+                        <button ng-click="closeTab($event,room)" class="close tab-close-button"
+                                type="button">&times;</button>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+
+                <div id="chatRooms" class="tab-pane fade in active">
+                    <h3>chat rooms</h3>
+                    <ul>
+                        <li ng-repeat="room in allChatRooms">
+                            <a class="text-muted" ng-click="activateChatRoom(room)" ng-class="{ 'user-online' : room.isOnline }" >
+                                {{room.name}}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div ng-repeat="room in allChatRooms | filter: activeChatRoomFilter" class="tab-pane fade"
+                     ng-attr-id="{{ 'tab' + $index }}">
+                    <h3>chat with {{ room.name }}</h3>
+                    <p>{{ room.content }}</p>
+                </div>
+
+            </div>
+
+
+
+
+            <!--end tabs-->
+
+        </div>
+        <!-- end column 6-->
+
+        <div class="col-sm-3"></div>
+    </div>
+    <!--end row-->
+
+</div>
+<!-- end container-->
+
+</body>
+</html>

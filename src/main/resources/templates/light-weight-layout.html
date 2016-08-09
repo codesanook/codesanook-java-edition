@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head th:with="buildNumber = ${@system.getBuildNumber()}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <object th:replace="shared/meta-tag::meta"/>
+    <object th:replace="shared/resources::resources"/>
+    <script th:inline="javascript" type="text/javascript">
+        /*<![CDATA[*/
+        /*Spring bean*/
+        window.apiEndpoint = /*[[${@env.getProperty("api-endpoint")}]]*/ null;
+        window.loggedInUser = /*[[${loggedInUserDto}]]*/ null;
+        window.facebookAppId = /*[[${@env.getProperty("facebook.app-id")}]]*/ null;
+        window.buildNumber = /*[[${@system.getBuildNumber()}]]*/ null;
+
+        /*]]>*/
+    </script>
+    <script type="text/javascript">
+        var app = angular.module('codesanook',
+                [
+                    'ngSanitize',
+                    'ngCookies',
+                    'LocalStorageModule',
+                    'ui.sortable'
+                ]);
+
+        //        app.run(function ($templateCache) {
+        //            $templateCache.removeAll();
+        //        });
+
+        app.config(function (localStorageServiceProvider) {
+            localStorageServiceProvider.setPrefix('codesanook');
+            localStorageServiceProvider.setStorageCookie(30, '/');
+        });
+
+
+        window.onready = [];
+        $(document).ready(function () {
+
+            var w = window.innerWidth;
+            var h = window.innerHeight;
+            console.log("window width %d, window height %d",w,h);
+
+            for (var i = 0; i < window.onready.length; i++) {
+                window.onready[i]();
+            }
+
+            $('.modal').on('shown.bs.modal', function (e) {
+                console.log("add class to body");
+                if (!$('body').hasClass('modal-open')) {
+                    $('body').addClass('modal-open');
+                }
+            });
+
+            //$(".htmlContent pre").attr({"class": "prettyprint linenums"});
+
+            prettyPrint();
+        });
+
+        var initFacebookModal = function () {
+            if (window.loggedInUser) return;//user already logged in
+
+            //do any thing because facebook loaded
+            var fbLogInScope = angular.element($("#fbLogIn")).scope();
+            fbLogInScope.$apply(function () {
+                fbLogInScope.facebookSdkLoaded = true;
+            });
+
+            var fbLogInModalSetScope = angular.element($("#fbLogInModalSet")).scope();
+            fbLogInModalSetScope.$apply(function () {
+                fbLogInModalSetScope.FB = FB;
+            });
+        };
+
+
+        var timestamp = (Math.floor(Date.now() / 1000));
+        window.onFbLoaded = [];
+        $(document).bind("fbLoaded", {timestamp: timestamp}, function (event, arg) {
+            console.log("event.data.timestamp %d", event.data.timestamp);
+            console.log("arg %s", arg);
+            console.log("fbLoaded");
+            initFacebookModal();
+            for (var i = 0; i < window.onFbLoaded.length; i++) {
+                window.onFbLoaded[i]();
+            }
+
+        });
+
+    </script>
+
+    <script type="text/javascript" th:src="|/js/angular/controllers/facebookLogInController.js?bno=${buildNumber}|"></script>
+    <script type="text/javascript" th:src="|/js/angular/directives/lineLoadingDirective.js?bno=${buildNumber}|"></script>
+    <object layout:fragment="head" th:remove="tag"></object>
+
+</head>
+
+<body ng-app="codesanook" th:with="userId = (${loggedInUser}!= null ? ${loggedInUser.id} : 0)">
+
+<object th:replace="shared/facebook-sdk :: sdk"></object>
+<div th:replace="shared/header :: navbar"></div>
+
+<object th:replace="shared/alert::alert"></object>
+
+<div layout:fragment="content" th:remove="tag">
+    content will be replaced here
+</div>
+
+<div th:replace="shared/facebook-login :: modals"></div>
+<div th:replace="shared/waiting-modal :: modal"></div>
+</body>
+</html>

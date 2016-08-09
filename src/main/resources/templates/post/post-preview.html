@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>codesanook.com : create new post</title>
+    <object layout:fragment="head">
+        <script type="text/javascript" src="/js/jquery.fullscreen.js"></script>
+        <script type="text/javascript" src="/js/angular-controllers/postPreviewController.js"></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+
+            window.postViewModel = JSON.parse(/*[[${@jsonService.toJsonString(post)}]]*/);
+
+            /*]]>*/
+        </script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+
+                $("#content img").attr({"class": "img-responsive"});
+            });
+        </script>
+    </object>
+</head>
+
+<body>
+<div layout:fragment="pageTitle">
+    <div class="container">
+        <h2>Create a new post</h2>
+    </div>
+</div>
+
+<div layout:fragment="content">
+    <div class="row" th:object="${post}"
+         ng-controller="postPreviewController">
+
+        <div class="col-sm-9">
+
+            <h2 th:text="*{title}"></h2>
+
+            <div id="content" th:utext="${htmlContent}"></div>
+
+            <div>
+                <span class="btn btn-primary btn-xs"
+                      th:each="tag : *{tags}" th:text="${tag}"></span>
+            </div>
+
+            <div class="text-center">
+                <input type="button" class="btn btn-md btn-default" value="back to edit"
+                       ng-click="backToEdit()"/>
+
+                <div style="display:inline-block;width:50px;"></div>
+                <input type="button" ng-disabled="isSaving" class="btn btn-md btn-primary" value="save"
+                       ng-click="savePost()"/>
+            </div>
+
+        </div>
+        <div class="col-sm-3"></div>
+
+    </div>
+</div>
+
+<!-- /*
+<th:object th:each="uploadedFile, stat : *{uploadedFiles}">
+    <input type="hidden" th:field="*{uploadedFiles[__${stat.index}__].id}"/>
+    <input type="hidden" th:field="*{uploadedFiles[__${stat.index}__].absoluteUrl}"/>
+    <input type="hidden" th:field="*{uploadedFiles[__${stat.index}__].name}"/>
+    <input type="hidden" th:field="*{uploadedFiles[__${stat.index}__].width}"/>
+    <input type="hidden" th:field="*{uploadedFiles[__${stat.index}__].height}"/>
+</th:object>
+*/ -->
+
+</body>
+</html>

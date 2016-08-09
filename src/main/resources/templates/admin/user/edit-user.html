@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>manage user</title>
+
+</head>
+<body>
+
+
+<div layout:fragment="content">
+<th:block th:object="${userAdminEditRequest}">
+    <form th:action="|/admin/user/edit/*{userId}|" method="post">
+
+        <p>
+            <span>delete user</span>
+            <input type="checkbox" th:field="*{isDeleted}"
+                   th:value="*{isDeleted}"/>
+        </p>
+        <p>
+
+        </p>
+        <p>
+            role:
+        </p>
+        <ul>
+            <th:block th:each="role : ${allRoles}">
+                <li>
+                    <span th:text="${role.name}"></span>
+                    <input type="checkbox"
+                           th:field="*{userRoleIds}"
+                           th:value="${role.id}"/>
+                <li/>
+            </th:block>
+        </ul>
+
+        <p><input type="submit" value="send"/></p>
+    </form>
+</th:block>
+</div>
+</body>
+</html>

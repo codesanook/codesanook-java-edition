@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>CodeSanook.com : Let's code and have fun!!!</title>
+</head>
+<body>
+<div id="home" layout:fragment="content" ng-controller="HomeIndexCtrl">
+    <div class="container-fluid quote hasBefore">
+        <h1 class="helFont center">Let's code and have fun.</h1>
+    </div>
+    <div class="content">
+        <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-9">
+                <ul class="topic">
+                    <li ng-repeat="post in posts">
+                        <div class="title">
+                            <h3 class="helFont"><a href="/{{post.englishTitle}}">{{post.title}}</a></h3>
+                        </div>
+                        <div class="tags">
+                            <a ng-repeat="tag in post.tags" href="/tag/{{tag}}">{{tag}}</a>
+                        </div>
+                        <div class="previewImg">
+                            <a href="/{{post.englishTitle}}"><img src="img/author-amm.jpg" /></a>
+                        </div>
+                        <div class="desc defaultFont">{{post.content | htmlToPlaintext | limitTo:250}}</div>
+
+                        <div class="info">
+                            <a href="/author/{{post.userName}}" class="author">
+                                <img src="img/author-amm.jpg" class="avatar" width="40" />
+                                <span class="userName">{{post.userName}}</span>
+                            </a>
+                            <small class="date">{{post.utcCreateDate| date:'d/MM/yyyy':timezone}}</small>
+                        </div>
+                        <br class="clear" />
+                        <div class="more">
+                            <span>Read : {{post.pageViewCount}}</span>
+                            <span>Comment : {{post.comments.length}}</span>
+                            <a href="/{{post.englishTitle}}" class="floatRight">Read more ></a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-sm-3 tags">
+                <h2>TAGS</h2>
+                <a href="#" ng-repeat="tag in tags">{{tag.name}}</a>
+            </div>
+        </div>
+
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<li th:fragment="item" th:each="comment, status : *{comments}"
+    ng-controller="commentUpdateController"
+    th:attr="ng-init='comment.id = ' + ${comment.id} + ''"
+    class="comment-list-item">
+
+
+    <div ng-show="!comment.isEditing">
+        <div class="row">
+            <div class="col-xs-6">
+                <a th:href="@{ /user/profile/{id}(id=${comment.userId}) }">
+                    <img th:src="${comment.userProfileUrl}" class="avatar"/>
+                    <span th:text="${comment.userName}"></span>
+                </a>
+            </div>
+            <div class="col-xs-6 text-right"
+                 th:if="${ @viewUtils.isOwningResource(loggedInUser,comment.userId)
+                     || @viewUtils.isAdmin(loggedInUser) }">
+
+                <a class="btn btn-default btn-xs" ng-click="editComment()">
+                    <i class="fa fa-pencil-square-o"></i>
+                    edit
+                </a>
+                <a style="display: inline-block;margin-left: 20px"
+                   class="btn btn-danger btn-xs"
+                   ng-click="deleteComment()">
+                    <i class="fa fa-times"></i>
+                    delete
+                </a>
+            </div>
+        </div>
+
+        <!--content here-->
+        <div class="htmlContent"
+             ng-hide="comment.isLoaded"
+             th:utext="${comment.htmlContent}"></div>
+
+        <!--content here-->
+        <div class="htmlContent"
+             ng-show="comment.isLoaded"
+             ng-bind-html="comment.htmlContent"
+             th:utext="${comment.htmlContent}"></div>
+
+    </div>
+
+    <div ng-show="comment.isEditing" style="padding:5px">
+        <h3>edit comment</h3>
+
+        <div ng-show="comment.isSaving || comment.isLoading" class="text-center">
+            <div style="display: inline-block">
+                <line-loading/>
+            </div>
+        </div>
+
+
+        <form ng-submit="updateComment(form)" role="form" name="form" novalidate>
+
+            <markdown-toolbar th:attr="editor-id='commentId' + ${comment.id} + ''"
+                              form-model="comment"
+                              loaded="editorLoaded"/>
+            <div class="form-group">
+                <div class="text-danger" ng-if="form.$submitted">
+                    <span ng-if="form.content.$error.required">content required</span>
+                    <span ng-if="form.content.$error.minlength">min length 5</span>
+                    <span ng-if="form.content.$error.maxlength">max length 10000</span>
+                </div>
+                                            <textarea
+                                                    th:attr="id='commentId' + ${comment.id} + ''"
+                                                    class="form-control textarea-editor" tabindex="4"
+                                                    ng-model="comment.content"
+                                                    ng-disabled="comment.isDisabled"
+
+                                                    name="content" ng-required="true"
+                                                    ng-minlength="5" ng-maxlength="10000"
+                                                    style="min-height: 100px;">
+                                            </textarea>
+            </div>
+
+            <div class="form-group text-center">
+                <input type="submit" class="btn btn-primary btn-sm"
+                       tabindex="5"
+                       ng-value="::comment.submitLabel"/>
+            </div>
+        </form>
+
+    </div>
+
+
+    <hr>
+</li>

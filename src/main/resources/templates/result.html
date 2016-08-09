@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title th:text="${title}"></title>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="row content-min-height">
+        <div class="col-sm-12 text-center">
+           <div style="margin-top: 150px;">
+               <a href="/" class="btn btn-link btn-md">back to home</a>
+           </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

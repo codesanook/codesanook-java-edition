@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<div>
+    <div th:fragment="posts" th:if="${multipartPost != null}" th:object="${multipartPost}">
+        <div class="panel panel-default panel-margin-bottom">
+            <div class="panel-heading text-center">
+               other posts in <strong th:text="*{title}"></strong>
+            </div>
+            <div class="panel-body"
+            ng-controller="multipartPostListController">
+                <ul class="multiple-post-item-list">
+                    <li th:each="item : *{multipartPostItems}">
+                    <div th:with="url = '/post/details/' +  ${item.post.alias} + '/' + ${item.post.id}">
+                        <a th:href="${url}"
+                         th:text="${item.post.title}"
+                         th:attr="ng-click='viewOtherPost($event, ' +
+                         ''  +  ${item.post.id} + ',' +
+                         '\''  +  ${item.post.title} + '\', ' +
+                         '\''  +  ${url} +  '\')'">
+                        </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+<object th:fragment="resources" th:remove="tag">
+    <!--favicon from http://www.favicon-generator.org/ -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/img/favicon/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/img/favicon/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/img/favicon/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/img/favicon/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/img/favicon/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/img/favicon/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/img/favicon/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/img/favicon/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/img/favicon/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/img/favicon/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/img/favicon/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon/favicon.ico"/>
+
+    <link rel="stylesheet" type="text/css" href="/js/bootstrap-3.3.5/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/js/jquery-ui-1.11.4/jquery-ui.css"/>
+    <link href="/css/font-awesome-4.5.0/css/font-awesome.css" rel="stylesheet">
+    <link href="/css/load-awesome-1.1.0/ball-scale-pulse.css" rel="stylesheet" type="text/css">
+    <link href="/css/load-awesome-1.1.0/line-scale.css" rel="stylesheet" type="text/css">
+    <link href="/css/bootstrap-social.css" rel="stylesheet" type="text/css">
+
+    <link rel="stylesheet" type="text/css" th:href="|/css/site-style.css?bno=${buildNumber}|"/>
+    <link rel="stylesheet" type="text/css" th:href="|/css/main.css?bno=${buildNumber}|"/>
+    <script type="text/javascript" src="/js/jquery-2.2.0.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.11.4/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/js/sprintf.js"></script>
+    <script type="text/javascript" src="/js/angular-1.4.8/angular.min.js"></script>
+    <script type="text/javascript" src="/js/angular-1.4.8/angular-sanitize.min.js"></script>
+    <script type="text/javascript" src="/js/angular-1.4.8/angular-local-storage.min.js"></script>
+    <script type="text/javascript" src="/js/angular-1.4.8/sortable.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.11.4/jquery.ui.touch-punch.min.js"></script>
+    <script type="text/javascript" src="/js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/moment-with-locales.js"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="/js/angular-toastr/angular-toastr.css" />
+    <script type="text/javascript" src="/js/angular-toastr/angular-toastr.tpls.js"></script>
+
+</object>
+
+</body>
+</html>

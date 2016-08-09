@@ -1,0 +1,80 @@
+package com.codesanook.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Service;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+//@Service
+public class RedisService {
+
+    private Log log = LogFactory.getLog(RedisService.class);
+
+    private final ObjectMapper mapper;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    public RedisService() {
+
+
+        mapper = new ObjectMapper();
+        mapper.writerWithDefaultPrettyPrinter();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.registerModule(new JodaModule());
+        mapper.configure(com.fasterxml.jackson.databind.SerializationFeature.
+                WRITE_DATES_AS_TIMESTAMPS, false);
+    }
+
+    private String toJsonString(Object object) throws JsonProcessingException {
+
+        //Object to JSON in String
+        String jsonInString = mapper.writeValueAsString(object);
+        return jsonInString;
+    }
+
+    private <T> T stringToObject(String str, Class<T> tClass) throws IOException {
+        //JSON from String to Object
+        T object = mapper.readValue(str, tClass);
+        return object;
+    }
+
+
+    public <T> T get(String key, Class<T> tClass)
+            throws IOException, InterruptedException {
+        int maxRetry = 5;
+        int attempt = 0;
+        T object = null;
+        while (attempt < maxRetry) {
+            try {
+                String json = redisTemplate.opsForValue().get(key);
+                object = stringToObject(json, tClass);
+                break;
+            } catch (Exception ex) {
+                log.error(ex);
+            }
+            Thread.sleep(250);
+            attempt++;
+        }
+
+        if (object != null) return object;
+        throw new IllegalStateException(String.format("error getting cache key %s", key));
+    }
+
+    public void set(String key, Object object, long expire, TimeUnit unit)
+            throws JsonProcessingException {
+
+        String str = toJsonString(object);
+        redisTemplate.opsForValue().set(key, str);
+        redisTemplate.expire(key, expire, unit);
+    }
+
+
+}

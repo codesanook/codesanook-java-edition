@@ -1,0 +1,680 @@
+package com.codesanook.service;
+
+import com.codesanook.dto.files.ImageDimension;
+import com.codesanook.model.UploadedFile;
+import com.codesanook.repository.FileRepository;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.imgscalr.Scalr;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+
+@Service
+public class FileServiceBackup {
+
+    private Log log = LogFactory.getLog(FileServiceBackup.class);
+    private final String FILE_ROOT_FOLDER = "uploaded";
+
+    @Autowired
+    private Environment env;
+
+    @Value("upload.root.path")
+    private String uploadRootPath;
+
+    @Value("upload.root.url")
+    private String uploadRootUrl;
+
+    private FileRepository fileRepository;
+
+    @Autowired
+    public FileServiceBackup(FileRepository fileRepository) {
+        this.fileRepository = fileRepository;
+    }
+
+    public UploadedFile getUploadedFile(int fileId) {
+        return fileRepository.getFileById(fileId);
+    }
+
+    public UploadedFile uploadFile(MultipartFile fileData) throws IOException {
+        if (fileData.isEmpty()) throw new IllegalStateException("file is empty");
+
+        DateTime utcNow = DateTime.now(DateTimeZone.UTC);
+        String newFileName = utcNow.getMillis() + "-" + fileData.getOriginalFilename();
+        String fileRoot = env.getProperty("upload.root.path");
+        String relativePath = String.format("%s/%s/%s/%s/%s",
+                FILE_ROOT_FOLDER, utcNow.getYear(), utcNow.getMonthOfYear(),
+                utcNow.getDayOfMonth(), newFileName);
+
+        File file = combinePath(fileRoot, relativePath);
+        File parentFolder = file.getParentFile();
+
+        if (!parentFolder.exists()) parentFolder.mkdirs();
+
+        InputStream inputStream = fileData.getInputStream();
+        writeFileToDisk(inputStream, file);
+
+        UploadedFile uploadedFile = new UploadedFile();
+        uploadedFile.setName(newFileName);
+        uploadedFile.setRelativeUrl(relativePath);
+        uploadedFile.setRelativePath(relativePath);
+        fileRepository.addFile(uploadedFile);
+        return uploadedFile;
+    }
+
+    public File combinePath(String path, String... more) {
+        Path filePath = Paths.get(path, more);
+        return filePath.toFile();
+    }
+
+    public void writeFileToDisk(InputStream inputStream, File fileToBeWritten) throws IOException {
+        BufferedOutputStream out = null;
+        out = new BufferedOutputStream(new FileOutputStream(fileToBeWritten));
+        int length;
+        byte[] buffer = new byte[4096];
+        while ((length = inputStream.read(buffer)) > 0) {
+            out.write(buffer, 0, length);
+        }
+        inputStream.close();
+        out.close();
+    }
+
+    public String getFileExtension(String fileName) {
+        String extension = "";
+        int i = fileName.lastIndexOf('.');
+        if (i >= 0) {
+            extension = fileName.substring(i + 1).toLowerCase();
+        }
+        return extension;
+    }
+
+
+    public InputStream toInputStream(BufferedImage bufferedImage, String formatName) throws IOException {
+        //Supported read formats: [jpg, bmp, jpeg, wbmp, png, gif]
+        // Supported write formats: [jpg, bmp, jpeg, wbmp, png, gif]
+        // Supported read MIME types: [image/jpeg, image/png, image/x-png, image/vnd.wap.wbmp, image/gif, image/bmp] Supported write MIME types: [image/jpeg, image/png, image/x-png, image/vnd.wap.wbmp, image/bmp, image/gif]
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ImageIO.write(bufferedImage, formatName, os);
+        InputStream inputStream = new ByteArrayInputStream(os.toByteArray());
+        return inputStream;
+    }
+
+    public void deleteUploadedFile(int fileId) {
+
+        UploadedFile uploadedFile = fileRepository.getFileById(fileId);
+        //delete from database
+        fileRepository.deleteUploadedFile(uploadedFile);
+
+        //delete from disk
+        String absolutePath = combinePath(uploadRootPath, uploadedFile.getRelativePath()).getAbsolutePath();
+        if (!deleteFileFromDisk(absolutePath)) {
+            throw new IllegalStateException(String.format("cannot delete fileId %s", uploadedFile.getId()));
+        }
+    }
+
+    private boolean deleteFileFromDisk(String filePath) {
+        return true;
+//        try {
+//            File file = new File(filePath);
+//            if(!file.exists()) return true;//silent success file not exist
+//
+//            return file.delete();
+//
+//        } catch (Exception ex) {
+//            log.error(ex);
+//            return false;
+//        }
+    }
+
+    public BufferedImage resizeImage(BufferedImage originalImage,
+                                     int newWidth, int newHeight) {
+//        BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, type);
+//        Graphics2D g = resizedImage.createGraphics();
+//        g.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+//        g.dispose();
+//        return resizedImage;
+        BufferedImage thumbnail = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY,
+                Scalr.Mode.AUTOMATIC, newWidth, newHeight);
+        return thumbnail;
+    }
+
+    public BufferedImage cropImage(BufferedImage originalImage, int cropX, int cropY, int cropWidth, int cropHeight) {
+        BufferedImage cropedImage = Scalr.crop(originalImage, cropX, cropY, cropWidth, cropHeight);
+        return cropedImage;
+    }
+
+
+    public ImageDimension getImageDimension(UploadedFile uploadedFile) throws IOException {
+
+        File file = combinePath(uploadRootPath, uploadedFile.getRelativePath());
+        BufferedImage bimg = ImageIO.read(file);
+        ImageDimension imageDimension = new ImageDimension();
+        imageDimension.setWidth(bimg.getWidth());
+        imageDimension.setHeight(bimg.getHeight());
+
+        return imageDimension;
+    }
+
+    public String getAbsoluteUrl(String relativeUrl) {
+        try {
+            URL root = new URL(uploadRootUrl);
+            URL url = new URL(root, relativeUrl);
+            return url.toString();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    public String getAbsolutePath(String relativePath) {
+        Path filePath = Paths.get(uploadRootPath, relativePath);
+        return filePath.toFile().getAbsolutePath();
+    }
+}
+
+
+
+//part 2
+
+package com.codesanook.service;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.event.*;
+import com.amazonaws.event.ProgressEvent;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.transfer.PersistableTransfer;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.Upload;
+import com.amazonaws.services.s3.transfer.internal.S3ProgressListener;
+import com.codesanook.dto.files.ImageDimension;
+import com.codesanook.dto.files.ImageEditRequest;
+import com.codesanook.dto.posts.UploadedFileDto;
+import com.codesanook.model.UploadedFile;
+import com.codesanook.repository.FileRepository;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.storage.Storage;
+import com.google.api.services.storage.StorageScopes;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.imgscalr.Scalr;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.FileNameMap;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.GeneralSecurityException;
+import java.security.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
+@Service
+public class FileService {
+
+    private Log log = LogFactory.getLog(FileService.class);
+    private final String FILE_ROOT_FOLDER = "uploaded";
+
+
+    @Value("${aws.s3.bucket.name}")
+    private String bucketName;
+
+    @Value("${aws.access.key.id}")
+    private String awsAccessKeyId;
+
+    @Value("${aws.secret.access.key}")
+    private String awsSecretAccessKey;
+
+    @Value("${aws.s3.root.url}")
+    private String rootUrl;
+
+    @Value("${temp.folder}")
+    private String tempFolder;
+
+    private FileRepository fileRepository;
+
+    private static final Map<String, String> fileExtensionMap;
+
+
+    private static final String APPLICATION_NAME = "CodeSanook/1.0";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+
+    private static Storage storageService;
+    private static String SERVICE_ACCOUNT_EMAIL = "codesanook-service-account@codesanook-project.iam.gserviceaccount.com";
+
+    static {
+        fileExtensionMap = new HashMap<String, String>();
+        // MS Office
+        fileExtensionMap.put("doc", "application/msword");
+        fileExtensionMap.put("dot", "application/msword");
+        fileExtensionMap.put("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        fileExtensionMap.put("dotx", "application/vnd.openxmlformats-officedocument.wordprocessingml.template");
+        fileExtensionMap.put("docm", "application/vnd.ms-word.document.macroEnabled.12");
+        fileExtensionMap.put("dotm", "application/vnd.ms-word.template.macroEnabled.12");
+        fileExtensionMap.put("xls", "application/vnd.ms-excel");
+        fileExtensionMap.put("xlt", "application/vnd.ms-excel");
+        fileExtensionMap.put("xla", "application/vnd.ms-excel");
+        fileExtensionMap.put("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        fileExtensionMap.put("xltx", "application/vnd.openxmlformats-officedocument.spreadsheetml.template");
+        fileExtensionMap.put("xlsm", "application/vnd.ms-excel.sheet.macroEnabled.12");
+        fileExtensionMap.put("xltm", "application/vnd.ms-excel.template.macroEnabled.12");
+        fileExtensionMap.put("xlam", "application/vnd.ms-excel.addin.macroEnabled.12");
+        fileExtensionMap.put("xlsb", "application/vnd.ms-excel.sheet.binary.macroEnabled.12");
+        fileExtensionMap.put("ppt", "application/vnd.ms-powerpoint");
+        fileExtensionMap.put("pot", "application/vnd.ms-powerpoint");
+        fileExtensionMap.put("pps", "application/vnd.ms-powerpoint");
+        fileExtensionMap.put("ppa", "application/vnd.ms-powerpoint");
+        fileExtensionMap.put("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+        fileExtensionMap.put("potx", "application/vnd.openxmlformats-officedocument.presentationml.template");
+        fileExtensionMap.put("ppsx", "application/vnd.openxmlformats-officedocument.presentationml.slideshow");
+        fileExtensionMap.put("ppam", "application/vnd.ms-powerpoint.addin.macroEnabled.12");
+        fileExtensionMap.put("pptm", "application/vnd.ms-powerpoint.presentation.macroEnabled.12");
+        fileExtensionMap.put("potm", "application/vnd.ms-powerpoint.presentation.macroEnabled.12");
+        fileExtensionMap.put("ppsm", "application/vnd.ms-powerpoint.slideshow.macroEnabled.12");
+        // Open Office
+        fileExtensionMap.put("odt", "application/vnd.oasis.opendocument.text");
+        fileExtensionMap.put("ott", "application/vnd.oasis.opendocument.text-template");
+        fileExtensionMap.put("oth", "application/vnd.oasis.opendocument.text-web");
+        fileExtensionMap.put("odm", "application/vnd.oasis.opendocument.text-master");
+        fileExtensionMap.put("odg", "application/vnd.oasis.opendocument.graphics");
+        fileExtensionMap.put("otg", "application/vnd.oasis.opendocument.graphics-template");
+        fileExtensionMap.put("odp", "application/vnd.oasis.opendocument.presentation");
+        fileExtensionMap.put("otp", "application/vnd.oasis.opendocument.presentation-template");
+        fileExtensionMap.put("ods", "application/vnd.oasis.opendocument.spreadsheet");
+        fileExtensionMap.put("ots", "application/vnd.oasis.opendocument.spreadsheet-template");
+        fileExtensionMap.put("odc", "application/vnd.oasis.opendocument.chart");
+        fileExtensionMap.put("odf", "application/vnd.oasis.opendocument.formula");
+        fileExtensionMap.put("odb", "application/vnd.oasis.opendocument.database");
+        fileExtensionMap.put("odi", "application/vnd.oasis.opendocument.image");
+        fileExtensionMap.put("oxt", "application/vnd.openofficeorg.extension");
+        // Other
+        fileExtensionMap.put("txt", "text/plain");
+        fileExtensionMap.put("rtf", "application/rtf");
+        fileExtensionMap.put("pdf", "application/pdf");
+    }
+
+    @Autowired
+    public FileService(FileRepository fileRepository) {
+        this.fileRepository = fileRepository;
+    }
+
+
+    public String getMimeType(String fileName) {
+        // 1. first use java's built-in utils
+        FileNameMap mimeTypes = URLConnection.getFileNameMap();
+        String contentType = mimeTypes.getContentTypeFor(fileName);
+
+        // 2. nothing found -> lookup our in extension map to find types like ".doc" or ".docx"
+        if (contentType == null) {
+            String extension = fileName.substring(fileName.lastIndexOf('.') + 1, fileName.length());
+            contentType = fileExtensionMap.get(extension);
+        }
+        return contentType;
+    }
+
+
+    public UploadedFile getUploadedFile(int fileId) {
+        return fileRepository.getFileById(fileId);
+    }
+
+    public UploadedFile addUploadedFile(MultipartFile file, int maxWidth, int maxHeight)
+            throws IOException, GeneralSecurityException, InterruptedException {
+        if (file.isEmpty()) throw new IllegalStateException("file is empty");
+
+        String fileName = file.getOriginalFilename();
+        fileName = fileName.replaceAll("\\s+", "");
+        String fileExtension = getFileExtension(fileName);
+
+        byte[] fileData = file.getBytes();
+        BufferedImage original = byteArrayToBufferedImage(fileData);
+
+        BufferedImage bufferedImageResult;
+        InputStream inputStreamResult;
+        byte[] fileDataResult;
+
+        if (maxWidth >= original.getWidth()) {
+            bufferedImageResult = original;
+            inputStreamResult = new ByteArrayInputStream(fileData);
+            fileDataResult = fileData;
+        } else {
+            BufferedImage resizedImage = resizeImage(original, maxWidth, maxHeight);
+            bufferedImageResult = resizedImage;
+            byte[] fileBytes = bufferedToByteArraySimple(resizedImage, fileExtension);
+            inputStreamResult = new ByteArrayInputStream(fileBytes);
+            fileDataResult = fileBytes;
+        }
+
+        DateTime utcNow = DateTime.now(DateTimeZone.UTC);
+        String newFileName = utcNow.getMillis() + "-" + fileName;
+        String contentType = getMimeType(fileName);
+        String relativePath = String.format("%s/%s/%s/%s/%s",
+                FILE_ROOT_FOLDER, utcNow.getYear(), utcNow.getMonthOfYear(),
+                utcNow.getDayOfMonth(), newFileName);
+
+        uploadFileToS3Multipart(inputStreamResult, contentType, fileDataResult.length, relativePath);
+        UploadedFile uploadedFile = new UploadedFile();
+        uploadedFile.setName(newFileName);
+        uploadedFile.setRelativePath(relativePath);
+        uploadedFile.setWidth(bufferedImageResult.getWidth());
+        uploadedFile.setHeight(bufferedImageResult.getHeight());
+        fileRepository.addFile(uploadedFile);
+        return uploadedFile;
+    }
+
+    public byte[] inputStreamToByteArray(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int byteRead;
+
+        while ((byteRead = inputStream.read(buffer)) > 0) {
+            byteArrayOutputStream.write(buffer, 0, byteRead);
+        }
+        byte[] result = byteArrayOutputStream.toByteArray();
+        byteArrayOutputStream.close();
+        inputStream.close();
+        return result;
+    }
+
+    public BufferedImage byteArrayToBufferedImage(byte[] imageInByte) throws IOException {
+        InputStream in = new ByteArrayInputStream(imageInByte);
+        BufferedImage bImageFromConvert = ImageIO.read(in);
+        in.close();
+        return bImageFromConvert;
+    }
+
+    public FileFolder getFileFolder(String relativePath) {
+
+        String regex = "([\\w/]+)/([\\w-\\s]+\\.[\\w]+)$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(relativePath);
+        while (m.find()) {
+            String folder = m.group(1);
+            String fileName = m.group(2).replaceAll("\\s+", "");
+
+            log.debug(String.format("folder %s, fileName %s", folder, fileName));
+            FileFolder fileFolder = new FileFolder(folder, fileName);
+            return fileFolder;
+        }
+        return null;
+    }
+
+    public void uploadFileToS3(InputStream inputStream, String contentType, long fileSize, String relativePath)
+            throws IOException, GeneralSecurityException {
+
+        AWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey);
+        AmazonS3 s3client = new AmazonS3Client(credentials);
+        try {
+            log.debug("Uploading a new object to S3 from a file");
+            FileFolder fileFolder = getFileFolder(relativePath);
+            ObjectMetadata omd = new ObjectMetadata();
+            omd.setContentType(contentType);
+            omd.setContentLength(fileSize);
+            omd.setHeader("filename", fileFolder.getFileName());
+
+            String key = relativePath;
+            PutObjectRequest request = new PutObjectRequest(bucketName, key, inputStream, omd);
+            request.withCannedAcl(CannedAccessControlList.PublicRead);
+            s3client.putObject(request);
+            inputStream.close();
+
+        } catch (AmazonServiceException ase) {
+            log.debug("Caught an AmazonServiceException, which " +
+                    "means your request made it " +
+                    "to Amazon S3, but was rejected with an error response" +
+                    " for some reason.");
+            log.error("Error Message:    " + ase.getMessage());
+            log.error("HTTP Status Code: " + ase.getStatusCode());
+            log.error("AWS Error Code:   " + ase.getErrorCode());
+            log.error("Error Type:       " + ase.getErrorType());
+            log.error("Request ID:       " + ase.getRequestId());
+            throw ase;
+
+        } catch (AmazonClientException ace) {
+            log.error("Caught an AmazonClientException, which " +
+                    "means the client encountered " +
+                    "an internal error while trying to " +
+                    "communicate with S3, " +
+                    "such as not being able to access the network.");
+            log.error("Error Message: " + ace.getMessage());
+            throw ace;
+        }
+    }
+
+    public void uploadFileToS3Multipart(InputStream inputStream, String contentType, long fileSize, String relativePath)
+            throws IOException, GeneralSecurityException, InterruptedException {
+
+        AWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey);
+        TransferManager tm = new TransferManager(credentials);
+        FileFolder fileFolder = getFileFolder(relativePath);
+        ObjectMetadata omd = new ObjectMetadata();
+        omd.setContentType(contentType);
+        omd.setContentLength(fileSize);
+        omd.setHeader("filename", fileFolder.getFileName());
+
+        String key = relativePath;
+        PutObjectRequest request = new PutObjectRequest(bucketName, key, inputStream, omd);
+        request.withCannedAcl(CannedAccessControlList.PublicRead);
+        Upload upload = tm.upload(request, new S3ProgressListener() {
+            @Override
+            public void onPersistableTransfer(PersistableTransfer persistableTransfer) {
+
+            }
+            @Override
+            public void progressChanged(ProgressEvent progressEvent) {
+                log.debug(String.format("bytesTransferred %d", progressEvent.getBytesTransferred()));
+            }
+        });
+
+        try {
+            upload.waitForCompletion();
+
+        } catch (AmazonClientException amazonClientException) {
+            log.error(amazonClientException);
+            amazonClientException.printStackTrace();
+        }
+    }
+
+    public String getFileExtension(String fileName) {
+        String extension = "";
+        int i = fileName.lastIndexOf('.');
+        if (i >= 0) {
+            extension = fileName.substring(i + 1).toLowerCase();
+        }
+        return extension;
+    }
+
+    public void deleteUploadedFile(int fileId) {
+
+        UploadedFile uploadedFile = fileRepository.getFileById(fileId);
+        //delete from database
+        fileRepository.deleteUploadedFile(uploadedFile);
+
+        //delete from disk
+        if (!deleteFileFromS3(uploadedFile.getRelativePath())) {
+            throw new IllegalStateException(String.format("cannot delete fileId %s", uploadedFile.getId()));
+        }
+    }
+
+    private boolean deleteFileFromS3(String relativePath) {
+
+        try {
+            AWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey);
+            AmazonS3 s3client = new AmazonS3Client(credentials);
+            s3client.deleteObject(bucketName, relativePath);
+            return true;
+        } catch (Exception ex) {
+            log.error(ex);
+            return false;
+        }
+    }
+
+
+    public BufferedImage resizeImage(BufferedImage originalImage, int newWidth, int newHeight) {
+
+        //not resize if new width bigger than original
+        if (newWidth >= originalImage.getWidth()) return originalImage;
+
+        BufferedImage thumbnail = Scalr.resize(originalImage, Scalr.Method.ULTRA_QUALITY,
+                Scalr.Mode.FIT_TO_WIDTH, newWidth, newHeight);
+        return thumbnail;
+    }
+
+    public BufferedImage cropImage(BufferedImage originalImage, int cropX, int cropY, int cropWidth, int cropHeight) {
+        BufferedImage cropedImage = Scalr.crop(originalImage, cropX, cropY, cropWidth, cropHeight);
+        return cropedImage;
+    }
+
+    public InputStream getFileData(UploadedFile uploadedFile) throws IOException, GeneralSecurityException {
+        AWSCredentials credentials = new BasicAWSCredentials(awsAccessKeyId, awsSecretAccessKey);
+        AmazonS3 s3client = new AmazonS3Client(credentials);
+        S3Object object = s3client.getObject(
+                new GetObjectRequest(bucketName, uploadedFile.getRelativePath()));
+        InputStream objectData = object.getObjectContent();
+        return objectData;
+    }
+
+    public String getAbsoluteUrl(String relativeUrl) {
+        log.debug(String.format("rootUrl %s", rootUrl));
+        String url = String.format("%s/%s", rootUrl, relativeUrl);
+        log.debug(String.format("absoluteUrl %s", url));
+        return url;
+    }
+
+
+    public UploadedFile editImage(int fileId, ImageEditRequest imageEditRequest) throws IOException, GeneralSecurityException, InterruptedException {
+
+        //not resize to prevent image quality
+        UploadedFile uploadedFile = getUploadedFile(fileId);
+        BufferedImage originalImage = getBufferedImage(uploadedFile);
+        BufferedImage resizedImage = cropImage(originalImage,
+                imageEditRequest.getCropX(),
+                imageEditRequest.getCropY(),
+                imageEditRequest.getCropWidth(),
+                imageEditRequest.getCropHeight());
+
+        String fileExtension = getFileExtension(uploadedFile.getName());
+        byte[] fileData = bufferedToByteArraySimple(resizedImage, fileExtension);
+        InputStream inputStream = new ByteArrayInputStream(fileData);
+        String contentType = getMimeType(uploadedFile.getName());
+        uploadFileToS3Multipart(inputStream, contentType, fileData.length, uploadedFile.getRelativePath());
+
+        uploadedFile.setWidth(resizedImage.getWidth());
+        uploadedFile.setHeight(resizedImage.getHeight());
+        return uploadedFile;
+    }
+
+    public BufferedImage getBufferedImage(UploadedFile uploadUploadedFile) throws IOException, GeneralSecurityException {
+        InputStream inputStream = getFileData(uploadUploadedFile);
+        return getBufferedImage(inputStream);
+    }
+
+    public BufferedImage getBufferedImage(InputStream inputStream) throws IOException, GeneralSecurityException {
+
+        BufferedImage bufferedImage = ImageIO.read(inputStream);
+        inputStream.close();
+        return bufferedImage;
+    }
+
+    public byte[] bufferedToByteArraySimple(BufferedImage bufferedImage, String fileExtension) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(bufferedImage, fileExtension, baos);
+        baos.flush();
+
+        byte[] imageInByte = baos.toByteArray();
+        baos.close();
+        return imageInByte;
+    }
+
+
+    public byte[] bufferedToByteArray(BufferedImage bufferedImage, String fileExtension) throws IOException {
+
+        ImageWriter writer = ImageIO.getImageWritersByFormatName(fileExtension).next();
+        ImageWriteParam param = writer.getDefaultWriteParam();
+        param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT); // Needed see javadoc
+        param.setCompressionQuality(1.0F); // Highest quality
+
+        long timeStamp = new DateTime().getMillis() / 1000;
+        String guid = java.util.UUID.randomUUID().toString();
+        String fileName = String.format("%s/%s-%s.%s", tempFolder, timeStamp, guid, fileExtension);
+
+        File tempFile = new File(fileName);
+        FileImageOutputStream output = new FileImageOutputStream(tempFile);
+        writer.setOutput(output);
+        writer.write(bufferedImage);
+        output.close();
+
+        FileInputStream fileInputStream = new FileInputStream(tempFile);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int byteRead;
+        while ((byteRead = fileInputStream.read(buffer)) > 0) {
+            byteArrayOutputStream.write(buffer, 0, byteRead);
+        }
+
+        byte[] fileData = byteArrayOutputStream.toByteArray();
+        fileInputStream.close();
+        byteArrayOutputStream.close();
+        tempFile.delete();
+
+        return fileData;
+    }
+
+    public UploadedFileDto toUploadedFileDto(UploadedFile uploadedFile) {
+        if (uploadedFile == null) return null;
+        UploadedFileDto uploadedFileDto = new UploadedFileDto();
+
+        uploadedFileDto.setId(uploadedFile.getId());
+        uploadedFileDto.setContextReferenceId(uploadedFile.getContextReferenceId());
+
+        uploadedFileDto.setHeight(uploadedFile.getHeight());
+        uploadedFileDto.setWidth(uploadedFile.getWidth());
+
+        String absoluteUrl = getAbsoluteUrl(uploadedFile.getRelativePath());
+        uploadedFileDto.setAbsoluteUrl(absoluteUrl);
+        uploadedFileDto.setRelativePath(uploadedFile.getRelativePath());
+
+        uploadedFileDto.setName(uploadedFile.getName());
+
+        return uploadedFileDto;
+    }
+
+
+}
+
+

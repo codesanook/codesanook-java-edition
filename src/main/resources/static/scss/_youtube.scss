@@ -1,0 +1,32 @@
+.youtube-preview {
+  background: url("/img/youtube-preview.png") #fff center center no-repeat;
+  background-size: contain;
+  width: 70%;
+  height: 250px;
+  display: block;
+  margin: 5px auto;
+  padding: 10px;
+  text-align: center;
+  border: 1px #CCC solid;;
+}
+
+.embedded-youtube {
+  float: none;
+  clear: both;
+  width: 100%;
+  position: relative;
+  padding-bottom: 56.25%;
+  padding-top: 25px;
+  height: 0;
+  margin:10px 0;
+
+  @include e('iframe') {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+}
+

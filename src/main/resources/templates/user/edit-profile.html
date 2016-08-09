@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+
+<head>
+    <title>Edit Profile | Codesanook.com</title>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#uploadFile').inputFileText({text: 'Change Photo', buttonClass: 'btn btn-round btn-grey'});
+        });
+    </script>
+</head>
+<body>
+
+<div layout:fragment="content">
+
+    <div class="row">
+        <div class="col-sm-3"></div>
+
+        <div class="col-sm-6">
+            <h1 class="center">Edit Profile</h1>
+            <th:block th:object="${userEditProfileRequest}">
+
+                <form class="form" role="form"
+                      th:action="|/user/edit/*{id}|" method="post"
+                      enctype="multipart/form-data">
+
+                    <div class="form-group text-center">
+                        <img style="max-width: 300px;" class="avatar" th:src="*{profileImageUrl}"/>
+                    </div>
+
+                    <div class="form-group text-center">
+                        <input class="btn btn-primary" id="uploadFile" type="file" name="file"/>
+                    </div>
+
+                    <div class="form-group" th:classappend="${#fields.hasErrors('name')} ? 'text-danger'">
+                        <label for="name">Name</label>
+                        <input class="form-control" type="text" th:field="*{name}"/>
+                        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                    </div>
+
+                    <input type="hidden" th:field="*{profileImageUrl}"/>
+                    <div class="form-group text-right">
+                        <input type="submit" class="btn btn-primary btn-lg" value="Save"/>
+                    </div>
+                </form>
+            </th:block>
+        </div>
+
+        <div class="col-sm-3"></div>
+    </div>
+</div>
+</body>
+</html>

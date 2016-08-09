@@ -1,0 +1,60 @@
+package com.codesanook.configuration;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.StringRedisTemplate;
+
+@Configuration
+public class RedisConfigbackup {
+    /*
+    http://docs.spring.io/spring-data/redis/docs/current/reference/html/#redis:connectors:connection
+https://jira.spring.io/browse/DATAREDIS-433
+     */
+//    @Bean
+//    public JedisConnectionFactory jedisConnectionFactory() {
+//       /*
+//       JedisConnectionFactory redis=new JedisConnectionFactory();
+//       redis.setHostName(environment.getProperty("redis.hostName"));
+//       redis.setPort(environment.getProperty("redis.port",Integer.class));
+//       redis.setPassword(environment.getProperty("redis.password"));
+//       return redis;
+//         */
+//
+//        return new JedisConnectionFactory();
+//    }
+
+//    @Bean
+//    public RedisTemplate<String, Object> redisTemplate() {
+//        RedisTemplate<String, Object> template = new RedisTemplate<>();
+//        template.setConnectionFactory(jedisConnectionFactory());
+//        template.setKeySerializer(new StringRedisSerializer());
+//
+//        JdkSerializationRedisSerializer jdkSerializationRedisSerializer = new JdkSerializationRedisSerializer();
+//        template.setHashValueSerializer(jdkSerializationRedisSerializer);
+//        template.setValueSerializer(jdkSerializationRedisSerializer);
+//        return template;
+//    }
+
+//    @Bean
+//    public RedisTemplate<String, Object> redisTemplate() {
+//
+//        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+//
+//        redisTemplate.setConnectionFactory(jedisConnectionFactory());
+//
+//        redisTemplate.setKeySerializer(new StringRedisSerializer());
+//
+//        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
+//
+//        return redisTemplate;
+//
+//    }
+
+
+    @Bean
+    StringRedisTemplate redisTemplate(RedisConnectionFactory connectionFactory) {
+        return new StringRedisTemplate(connectionFactory);
+    }
+
+}

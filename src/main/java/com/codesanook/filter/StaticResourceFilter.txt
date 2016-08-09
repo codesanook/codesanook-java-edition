@@ -1,0 +1,43 @@
+package com.codesanook.filter;
+
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
+public class StaticResourceFilter implements Filter {
+
+    private Log log = LogFactory.getLog(CorsFilter.class);
+
+    @Override
+    public void init(final FilterConfig filterConfig) throws ServletException {
+        log.info("StaticResourceFilter initialized");
+    }
+
+    @Override
+    public void doFilter(final ServletRequest request, final ServletResponse response,
+                         final FilterChain chain) throws IOException, ServletException {
+
+        String requestPath = ((HttpServletRequest) request).getRequestURI().toLowerCase();
+
+        String[] staticPath = {"/css", "/epiceditor", "/fonts",
+                "/google-code-prettify", "img", "js", "swagger"};
+        for (String path : staticPath) {
+            if (requestPath.startsWith(path)) {
+                request.getRequestDispatcher(path).forward(request, response);
+                return;
+            }
+        }
+
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+
+}

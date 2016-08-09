@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+
+<body>
+<div th:fragment="modals" th:remove="tag">
+
+    <div id="fbLogInModalSet" class="row" ng-controller="facebookLogInController">
+        <div class="col-sm-12">
+
+            <!-- intro log in modal -->
+            <div id="introLogIn" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-lg">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Please log in with your facebook.</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-sm-1"></div>
+                                <div class="col-sm-10">
+                                    <h3>เราจำเป็นต้องให้ท่านผู้ใช้ log in ด้วย facebook เนื่องจาก</h3>
+
+                                    <p>
+                                        codesanook.com ต้องการสร้าง community ที่สามารถใช้งานได้ง่าย
+                                        ลดขั้นตอนการลงทะเบียนที่ต้องกรอกข้อมูลต่างๆ
+                                        เราเพียงต้องการข้อมูลเหล่านี้จาก facebook ของท่านผู้ใช้เท่านี้
+                                    </p>
+                                    <ul>
+                                        <li>ชือผู้ใช้</li>
+                                        <li>อีเมล์</li>
+                                    </ul>
+                                </div>
+                                <div class="col-sm-1"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="text-center">
+
+                                <a class="btn btn-social btn-facebook"
+                                   ng-click="logIn()">
+                                    <span class="fa fa-facebook"></span>
+                                    Log in with facebook
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <!-- user type log in modal -->
+            <div id="userTypeLogInModal" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-lg">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">กรุณาตอบคำถามเพิ่มเติมเพียงเล็กน้อย</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <p>
+                                    <ul>
+                                        <li> หากท่านไม่เคยสมัครใช้งาน codesanook.com มาก่อน <strong>
+                                            กรุณาคลิกปุ่ม สมาชิกใหม่</strong>
+                                        </li>
+                                        <li> หากท่านเคยสมัครใช้งาน codesanook.com กับ email ของท่านมาแล้ว
+                                            <strong> กรุณาคลิกปุ่ม สมาชิกเดิม </strong> (ไม่สร้างสมาชิกใหม่)
+                                        </li>
+                                    </ul>
+                                    </p>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+
+                            <div class="row">
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <div class="row">
+                                        <div class="col-sm-6 text-center">
+                                            <button type="button" class="btn btn-primary btn-lg"
+                                                    ng-click="registerNewUserWithFacebook()">สมาชิกใหม่
+                                            </button>
+                                        </div>
+                                        <div class="col-sm-6 text-center">
+                                            <button type="button" class="btn btn-default btn-lg"
+                                                    ng-click=showExistingUserLogInModal()">สมาชิกเดิม
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- user type log in modal -->
+            <div id="existingUserLogInModal" class="modal fade" role="dialog">
+                <div class="modal-dialog modal-lg">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Please enter your email.</h4>
+                        </div>
+
+                        <form id="emailForm"
+                              class="form"
+                              role="form"
+                              name="emailForm"
+                              ng-submit="updateFacebookInfoToExistingUser(emailForm)"
+                              novalidate>
+
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-6">
+                                        <p>
+                                            กรุณากรอก email ที่ได้สมัครใช้งานกับ codesanook.com
+                                        </p>
+                                        <br/>
+
+
+                                        <div class="form-group">
+
+                                            <label for="email">email</label>
+                                            <input id="email"
+                                                   name="email" type="text"
+                                                   class="form-control"
+                                                   ng-required="true"
+                                                   ng-minlength="5"
+                                                   ng-model="user.existingEmail"/>
+
+                                            <div class="text-danger" ng-show="emailForm.$submitted">
+                                                <span ng-show="emailForm.email.$error.required">email required</span>
+                                                <span ng-show="emailForm.email.$error.minlength">min length 5</span>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                    <div class="col-sm-3"></div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+
+                                <div class="form-group text-center">
+                                    <input type="submit" class="btn btn-primary" value="send"/>
+                                </div>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+        <!--end column-->
+
+    </div>
+
+</div>
+
+</body>
+</html>

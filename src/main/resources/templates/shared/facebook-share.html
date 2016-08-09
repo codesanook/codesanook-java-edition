@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+<div th:fragment="share" style="height: 20px" class="panel-margin-bottom">
+        <div th:with="m = ( ${#vars.containsKey('metaTag')} ? ${metaTag} : ${T(com.codesanook.dto.MetaTag).getInstance()} )"
+             class="fb-share-button"
+             th:attr="data-href=${m.ogUrl}"
+             data-layout="button_count">
+        </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>codesanook.com : Let's code and have fun!!!</title>
+    <object layout:fragment="head">
+
+        <object th:replace="shared/post-resources::resources"></object>
+
+        <script th:inline="javascript" type="text/javascript">
+            /*<![CDATA[*/
+            window.timeZoneMillisecond = /*[[${@viewUtils.getUserTimeZone()}]]*/null;
+            /*]]>*/
+        </script>
+
+        <script th:inline="javascript" type="text/javascript">
+            /*<![CDATA[*/
+            window.questionId = /*[[${T(com.codesanook.model.PostTypeEnum).QUESTION.getId()}]]*/null;
+            window.articleId = /*[[${T(com.codesanook.model.PostTypeEnum).ARTICLE.getId()}]]*/null;
+            /*]]>*/
+        </script>
+
+    </object>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div id="home">
+        <!--<div class="text-center">
+<pre class="pre-quote" style="margin-top:50px;">
+while(yourCodeHasProblem()){
+    if(joinCodeSanook()){
+        shareYourIdeaWithOthers();
+        keepLearning();
+        happyCoding();
+    }
+}
+</pre>
+        </div>-->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="visible-lg-block col-lg-1"></div>
+
+                <div class="col-sm-9 col-lg-7 postLists" ng-controller="postManagerController">
+
+                    <div class="row">
+                        <div class="col-xs-7">
+                            <h3><i class="fa fa-plus"></i> new question
+
+                                <!--<span class="text-danger" th:if="${loggedInUser==null}">-->
+                                <!--[ Please <a href="/user/login" class="text-info"> log in</a> to post new question. ]-->
+                                <!--</span>-->
+                            </h3>
+                        </div>
+
+                        <div class="col-xs-5 text-right" style="padding-top: 25px">
+                            <a href="/post/create?type=1"><i class="fa fa-external-link"></i> full screen</a>
+                        </div>
+                    </div>
+
+                    <div ng-controller="inlinePostAddController">
+                        <div ng-if="formModel.isSaving" class="text-center">
+                            <div style="display: inline-block">
+                                <line-loading/>
+                            </div>
+                        </div>
+                        <comment-form save-ref="savePost" form-model="formModel" autosize="true"></comment-form>
+                    </div>
+
+                    <ul>
+                        <li ng-repeat="post in posts track by post.id"
+                            ng-include="'/dynamic-templates/post-item?postId=' + post.id"
+                            include-replace>
+                        </li>
+                        <li th:replace="shared/post-item :: item"></li>
+                    </ul>
+
+                    <div class="text-center" th:utext="${pagination}"></div>
+
+                </div>
+                <!--end main post list-->
+
+                <!--all tags-->
+                <div class="col-sm-3 col-lg-3">
+                    <div th:replace="shared/tag :: tags"></div>
+                    <div th:replace="shared/facebook-share :: share"></div>
+                    <div th:replace="shared/facebook-page :: page"></div>
+                </div>
+
+                <div class="visible-lg-block col-lg-1"></div>
+            </div>
+            <!--end main row-->
+        </div>
+    </div>
+
+    <div ng-controller="homeController"></div>
+</div>
+<!--end container-->
+
+</body>
+</html>

@@ -1,0 +1,175 @@
+<div style="padding:5px;">
+    <form class="form" role="form" name="form" method="post"
+          ng-submit="submit(form)"
+          novalidate>
+
+        <div class="form-group" ng-if="::formModel.withTitle">
+            <label for="title">title</label>
+            <input type="text"
+                   tabindex="1"
+                   name="title"
+                   class="form-control input-sm"
+                   ng-model="formModel.title"
+                   ng-disabled="formModel.isDisabled"
+                   ng-required="true" ng-minlength="10" ng-maxlength="200"
+                   placeholder="title here..."/>
+        <span class="text-danger" ng-if="form.$submitted">
+            <span ng-if="form.title.$error.required">title required</span>
+            <span ng-if="form.title.$error.minlength">min length 10</span>
+            <span ng-if="form.title.$error.maxlength">max length 200</span>
+        </span>
+        </div>
+
+
+        <div class="form-group" ng-if="::formModel.withAlias">
+            <label>Alias (Optional English title for URL friendly)</label>
+            <input type="text"
+                   tabindex="2"
+                   class="form-control input-sm"
+                   name="alias"
+                   ng-model="formModel.alias"
+                   placeholder="URL friendly, usually from title. We will be so happy if you can help system by typing English title, thank you so much."/>
+        </div>
+
+
+        <div class="form-group"
+             ng-if="::formModel.withTitle">
+            <label>tags</label>
+            <input type="text"
+                   tabindex="3"
+                   name="tags"
+                   class="form-control input-sm"
+                   ng-model="formModel.tags"
+                   ng-disabled="formModel.isDisabled"
+                   ng-required="true"
+                   placeholder="space separated values, for example:  java  c#  php  javascript"/>
+
+            <div class="text-danger" ng-if="form.$submitted">
+                <span ng-if="form.tags.$error.required">at least one tag</span>
+            </div>
+        </div>
+
+
+        <div class="form-group" ng-if="::formModel.isArticle">
+            <div class="checkbox">
+                <label>
+                    <input name="isMultipartPost"
+                           id="isMultipartPost"
+                           type="checkbox"
+                           ng-model="formModel.isMultipartPost"
+                           ng-disabled="formModel.isDisabled"/>
+                    is multipart post
+
+                    <span class="text-info"> <i class="fa fa-info-circle"></i>
+                        If your article is multipart post, please check this.
+                    </span>
+                </label>
+            </div>
+        </div>
+
+
+        <div class="form-group editor-toolbar">
+
+            <input ng-if="::formModel.fullVersion"
+                   type="submit"
+                   tabindex="5"
+                   class="btn btn-primary"
+                   ng-disabled="formModel.isDisabled"
+                   ng-value="::formModel.submitLabel"/>
+
+            <a class="btn btn-default btn-md" ng-click="bold()">
+                <span style="font-weight:bold">B</span>
+            </a>
+
+            <a class="btn btn-default btn-md" ng-click="italic()">
+                <span style="font-style:italic">i</span>
+            </a>
+
+            <a class="btn btn-default btn-md" ng-click="insertLink()">
+                <span class="fa fa-link"></span>
+            </a>
+
+            <a class="btn btn-default btn-md" ng-click="quote()">
+                <span class="fa fa-quote-right"></span>
+            </a>
+
+        <span class="dropdown">
+            <button class="btn btn-default btn-md dropdown-toggle"
+                    type="button" data-toggle="dropdown">font size
+                <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                <li><a ng-click="fontSize('h1')">H1</a></li>
+                <li><a ng-click="fontSize('h2')">H2</a></li>
+                <li><a ng-click="fontSize('h3')">H3</a></li>
+            </ul>
+        </span>
+
+            <a class="btn btn-default btn-md" ng-click="insertCode()">
+                <span>insert code</span>
+            </a>
+
+            <a class="btn btn-default btn-sm" ng-click="uploadImage()">
+                <span class="glyphicon glyphicon-picture"></span>
+            </a>
+
+            <a class="btn btn-default btn-sm" ng-click="quote()">
+                <span class="fa fa-quote-right"></span>
+            </a>
+
+        </div>
+
+        <div class="form-group textarea-parent">
+            <div class="text-danger" ng-if="form.$submitted">
+                <span ng-if="form.content.$error.required">content required</span>
+                <span ng-if="form.content.$error.minlength">min length 5</span>
+                <span ng-if="form.content.$error.maxlength">max length 10000</span>
+            </div>
+
+        <textarea class="form-control textarea-editor"
+                  tabindex="4"
+                  ng-model="formModel.content"
+                  name="content" ng-required="true"
+                  ng-minlength="5" ng-maxlength="10000"
+                  ng-disabled="formModel.isDisabled"
+                  ng-style="::formModel.textareaStyle">
+        </textarea>
+        </div>
+
+
+        <div ng-if="::!formModel.fullVersion" class="form-group text-center">
+            <input type="submit" class="btn btn-primary"
+                   tabindex="5"
+                   ng-value="::formModel.submitLabel"/>
+        </div>
+
+    </form>
+
+
+    <!-- cropper Modal -->
+    <div class="editImageModal modal fade" role="dialog" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">edit photo</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="image-container" style="width:auto;height:100%"></div>
+                </div>
+
+                <div class="modal-footer text-right">
+                    <span>TIP: mouse scroll or pitch to zoom in out </span>
+                    <button type="button" class="btn btn-default" ng-click="saveEditedPostImage(selectedFile)">save
+                    </button>
+                    <button type="button" class="btn btn-default" ng-click="keepOriginalPostImage(selectedFile)">no
+                        thanks
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!--end cropper -->
+

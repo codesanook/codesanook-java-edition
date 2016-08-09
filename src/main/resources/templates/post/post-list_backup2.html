@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>codesanook.com : Let's code and have fun!!!</title>
+    <object layout:fragment="head">
+        <script type="text/javascript"
+                th:src="|/js/angular-controllers/postListController.js?bno=${buildNumber}|"></script>
+
+        <script type="text/javascript"
+                th:src="|/js/angular-controllers/postListItemController.js?bno=${buildNumber}|"></script>
+
+        <script type="text/javascript"
+                th:src="|/js/angular-controllers/scrollDirective.js?bno=${buildNumber}|"></script>
+        <script type="text/javascript"
+                th:src="|/js/angular-controllers/commentFormDirective.js?bno=${buildNumber}|"></script>
+
+        <script th:if="${session.containsKey( T(com.codesanook.dto.users.UserTimeZone).KEY )}"
+                th:inline="javascript"
+                type="text/javascript">
+            /*<![CDATA[*/
+
+            window.timeZoneMillisecond = /*[[${session[ T(com.codesanook.dto.users.UserTimeZone).KEY ]}]]*/ null;
+
+            /*]]>*/
+        </script>
+
+        <script th:inline="javascript" type="text/javascript">
+            /*<![CDATA[*/
+
+            window.questionId = /*[[${T(com.codesanook.model.PostTypeEnum).QUESTION.getId()}]]*/null;
+            window.articleId = /*[[${T(com.codesanook.model.PostTypeEnum).ARTICLE.getId()}]]*/null;
+            window.pageLoadedPosts = JSON.parse(/*[[${@jsonService.toJsonString(postResponse.posts)}]]*/);
+
+            /*]]>*/
+        </script>
+
+    </object>
+</head>
+<body>
+<div layout:fragment="content">
+    <div id="home">
+        <!--<div class="text-center">
+<pre class="pre-quote" style="margin-top:50px;">
+while(yourCodeHasProblem()){
+    if(joinCodeSanook()){
+        shareYourIdeaWithOthers();
+        keepLearning();
+        happyCoding();
+    }
+}
+</pre>
+        </div>-->
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-9 postLists" scroll>
+                    <ul>
+
+                        <li th:each="post,status : ${postResponse.posts}" th:object="${post}"
+                            class="post-wrapper" th:with="postClass = ${@viewUtil.getPostClass(post)}"
+                            th:classappend="${postClass}"
+                            th:attr="id='postId' + ${post.id} + '',
+                            ng-controller='postListItemController',
+                            ng-init='postId = ' + ${post.id}  + ''">
+
+                            <div class="post-header">
+                                <a th:if="*{postType.id == T(com.codesanook.model.PostTypeEnum).QUESTION.getId()}"
+                                   href="/post/list/type/question">
+                                    <span class="glyphicon glyphicon-question-sign"></span> Question
+                                </a>
+                                <a th:if="*{postType.id == T(com.codesanook.model.PostTypeEnum).ARTICLE.getId()}"
+                                   href="/post/list/type/article">
+                                    <span class="glyphicon glyphicon-book"></span> Article
+                                </a>
+                                : <a th:href="@{/post/details/{alias}/{postId}(alias=*{alias},postId=*{id})}"
+                                     th:text="*{title}">
+                                Java programming language
+                            </a>
+                            </div>
+                            <div class="post-body">
+                                <p>
+                                    by
+                                    <a th:href="@{/user/profile/{id}(id=*{user.id})}">
+                                        <img th:src="*{user.profileImageUrl}" class="avatar-thumbnail"/>
+                                        <span th:text="*{user.name}"></span>
+                                    </a>
+                                    <span th:if="*{utcCreateDate!=null}"
+                                          th:text="*{@dateTimeService.getLocalNow(utcCreateDate)}"></span>
+                                    <i class="glyphicon glyphicon-tag"></i>
+                                    <a class="tag" th:each="tag : *{tags}"
+                                       th:href="@{/post/list/tag/{tagName}(tagName=${tag})}" th:text="${tag}">
+                                    </a>
+                                </p>
+
+                                <div class="row">
+
+                                    <a class="featured-image"
+                                       th:href="@{/post/details/{alias}/{postId}(alias=*{alias},postId=*{id})}">
+                                            <span th:if="*{postType.id == T(com.codesanook.model.PostTypeEnum).QUESTION.getId()}">
+                                            <img class="center2D" th:src="*{featuredImage !=null
+                                                 ? featuredImage.absoluteUrl
+                                                 : '/img/featured-image-question.jpg'}"/>
+                                            </span>
+                                            <span th:if="*{postType.id == T(com.codesanook.model.PostTypeEnum).ARTICLE.getId()}">
+                                            <img class="center2D" th:src="*{featuredImage !=null
+                                                 ? featuredImage.absoluteUrl
+                                                 : '/img/featured-image-article.jpg'}"/>
+                                            </span>
+                                    </a>
+
+                                    <p class="desc defaultFont"
+                                       ng-if="!isPostContentShown"
+                                       th:utext="*{shortIntroduction}">
+
+                                    </p>
+
+                                    <div ng-if="isPostContentLoading"
+                                         ng-include="'/ng-templates/loading.html'">
+                                    </div>
+
+                                    <p class="desc defaultFont"
+                                       ng-if="isPostContentShown"
+                                       ng-bind-html="post.htmlContent"></p>
+                                </div>
+                            </div>
+
+                            <div class="post-footer">
+                                <div class="row">
+                                    <div class="col-xs-8">
+                                        <span>Vote <span th:text="*{pageViewCount}">0</span></span>
+                                        <span>Read <span th:text="*{pageViewCount}">7</span></span>
+                                        <span>Comment <span th:text="*{#lists.size(comments)}">3</span></span>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+
+                                        <a ng-click="showPostContent()"
+                                           ng-if="!isPostContentShown">
+                                            more...
+                                        </a>
+
+                                        <a ng-click="hidePostContent()"
+                                           ng-if="isPostContentShown">
+                                            less
+                                        </a>
+
+                                        <!--for seo-->
+                                        <a th:href="@{/post/details/{alias}/{postId}(alias = *{alias},postId = *{id})}">
+                                            full screen
+                                        </a>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <ul>
+
+                                <li th:attr="ng-if=' pageLoadedPosts[' + ${status.index} + '].newComments',
+                                        ng-repeat='comment in pageLoadedPosts[' + ${status.index} + '].newComments'"
+                                    ng-include="'/ng-templates/post/comment-item.html?bno=' + buildNumber + ''">
+                                </li>
+                            </ul>
+
+                            <div th:attr="ng-if='!pageLoadedPosts['  + ${status.index} + '].isEditingComment'">
+                                new comment
+                                <comment-form
+                                        th:attr="postid='pageLoadedPosts['  + ${status.index} + '].id'"
+                                        comment="newComment" save="saveComment"/>
+                            </div>
+
+                        </li>
+
+
+                        <!--ajax load more-->
+                        <li ng-repeat="post in posts track by post.id"
+                            class="post-wrapper"
+                            ng-class="getPostClass(post)">
+                            <div class="post-header">
+                                <a ng-if="::post.isQuestion" href="/post/list/type/question">
+                                    <span class="glyphicon glyphicon-question-sign"></span> Question
+                                </a>
+                                <a ng-if="::post.isArticle" href="/post/list/type/article">
+                                    <span class="glyphicon glyphicon-book"></span> Article
+                                </a>
+
+                                :<a href="/post/details/{{ ::post.alias }}/{{ ::post.id }}">
+                                {{ ::post.title }}
+                            </a>
+                            </div>
+                            <div class="post-body">
+                                <p>
+                                    by
+                                    <a href="/user/profile/{{ ::post.user.id }}">
+                                        <img src="{{ ::post.user.profileImageUrl }}" class="avatar-thumbnail"/>
+                                        <span> {{ ::post.user.name}}</span>
+                                    </a>
+                                    <!--<span th:if="*{utcCreateDate!=null}"-->
+                                    <!--th:text="*{@dateTimeService.getLocalNow(utcCreateDate)}"></span>-->
+                                    <i class="glyphicon glyphicon-tag"></i>
+                                    <a ng-repeat="tag in ::post.tags"
+                                       class="tag"
+                                       href="/post/list/tag/{{ ::tag }}">
+                                        {{ ::tag }}
+                                    </a>
+                                </p>
+
+                                <div class="row">
+                                    <a class="featured-image" href="/post/details/{{ ::post.alias }}/{{ ::post.id }}">
+                                        <img class="center2D" src="{{ ::post.featuredImage.absoluteUrl }}"/>
+                                    </a>
+
+                                    <p class="desc defaultFont">
+                                        {{ ::post.shortIntroduction }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="post-footer">
+                                <div class="row">
+                                    <div class="col-xs-8">
+                                        <span>Vote 0</span>
+                                        <span>Read {{ ::post.pageViewCount }}</span>
+                                        <span>Comment {{ ::post.comments.length }}</span>
+                                    </div>
+                                    <div class="col-xs-4 text-right">
+                                        <a href="/post/details/{{ ::post.alias }}/{{ ::post.id }}">
+                                            Read More...
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+
+
+                        <li ng-show="isLoadingPosts" class="content-loading">
+                            <div class="la-ball-scale-pulse la-2x"
+                                 style="margin: 10px auto;">
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </li>
+
+                    </ul>
+
+
+                    <!--<div class="row">-->
+                    <!--<div class="col-sm-12">-->
+                    <!--<div th:utext="${pagination.render()}"></div>-->
+                    <!--</div>-->
+                    <!--</div>-->
+
+                </div>
+                <!--end main post list-->
+
+                <!--all tags-->
+                <div class="col-sm-3">
+                    <div th:replace="shared/tag :: tagPanel"></div>
+                    <div th:replace="shared/facebook-share :: share"></div>
+                    <div th:replace="shared/facebook-page :: page"></div>
+                </div>
+
+            </div>
+            <!--end main row-->
+        </div>
+    </div>
+
+</div>
+<!--end container-->
+
+</body>
+</html>

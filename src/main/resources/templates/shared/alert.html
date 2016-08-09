@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head></head>
+<body>
+
+<object th:fragment="alert" th:remove="tag"
+        th:with="alert = ${__${T(com.codesanook.viewmodel.UiAlert).KEY}__}">
+        <div th:if="${alert}" class="alert text-center"
+                 style="margin-top:5px;margin-bottom: 5px;"
+                 th:classappend="${alert.getType().getCssClass()}">
+                <strong th:text="${alert.getMessage()}"></strong>
+
+        </div>
+</object>
+
+</body>
+</html>

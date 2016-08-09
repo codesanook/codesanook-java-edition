@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>Profile | Codesanook.com</title>
+</head>
+<script th:inline="javascript" layout:fragment="script">
+    /*<![CDATA[*/
+    var userId = /*[[${userId}]]*/ null;
+    /*]]>*/
+</script>
+<body>
+
+<div layout:fragment="content">
+    <div class="row">
+
+        <div class="col-sm-12 text-center" th:object="${userProfile}">
+            <h1>Profile</h1>
+
+            <img class="img-responsive img-circle" style="max-width: 250px;display: inline-block"
+                 th:src="*{profileImageUrl}"/>
+
+            <div>
+                <a class="btn btn-round btn-grey"
+                th:href="@{/user/edit/{id}(id=*{id})}">Edit Profile</a>
+            </div>
+            <div>
+                <h4><span class="label label-default"> Name</span></h4>
+
+                <h4><span th:text="*{name}"></span></h4>
+            </div>
+            <!-- /*
+            <div>
+                <h4><span class="label label-default">Email</span></h4>
+
+                <h4><span th:text="*{email}"></span></h4>
+            </div>
+            */ -->
+
+            <div th:if="*{roles !=null && roles.size() > 0}">
+                <h4><span class="label label-default">Roles</span></h4>
+                <h4><span th:each="role : *{roles}" th:text="${' '+role.name}"></span></h4>
+            </div>
+
+        </div>
+
+    </div>
+    <!--end first column-->
+
+
+</div>
+<!--end row-->
+
+</div>
+<!--end container-->
+
+</body>
+</html>

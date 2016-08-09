@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+
+    <Properties>
+        <Property name="logPath">c:/logs</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <RollingFile name="rollingFile" fileName="${sys:logPath}/debug.txt"
+                     filePattern="${sys:logPath}/debug-%i.txt">
+            <PatternLayout>
+                <Pattern>%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="5MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="7"/>
+        </RollingFile>
+
+        <Async name="async">
+            <AppenderRef ref="rollingFile"/>
+            <BufferSize>1</BufferSize>
+        </Async>
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="ERROR">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="async"/>
+        </Root>
+
+        <Logger name="com.codesanook" level="debug"/>
+
+        <Logger name="com.codesanook.test" level="debug" additivity="false">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <Logger name="org.springframework.web" level="info"/>
+        <Logger name="org.springframework.orm.jpa" level="debug"/>
+        <Logger name="org.hibernate.transaction" level="debug"/>
+        <Logger name="org.springframework.transaction" level="debug"/>
+        <Logger name="org.springframework.jdbc" level="debug"/>
+        <!--<logger name="org.thymeleaf" level="debug"/>-->
+
+    </Loggers>
+</Configuration>

@@ -1,0 +1,62 @@
+package com.codesanook.service;
+
+import com.codesanook.dto.emails.EmailDto;
+import com.sendgrid.SendGrid;
+import com.sendgrid.SendGridException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.spring4.SpringTemplateEngine;
+
+import javax.mail.MessagingException;
+
+@Service
+public class SendGridMailService {
+
+    private Log log = LogFactory.getLog(SendGridMailService.class);
+    private SendGrid sendGrid;
+    private SpringTemplateEngine templateEngine;
+
+    @Value("${sendgrid.username}")
+    private String sendGridUserName;
+
+    @Value("${sendgrid.password}")
+    private String sendGridPassword;
+
+    @Autowired
+    public SendGridMailService(SpringTemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
+    }
+
+    private SendGrid getSendGrid() {
+        if (sendGrid != null) return sendGrid;
+        log.debug(String.format("sendgrid username %s, password %s", sendGridUserName, sendGridPassword));
+        sendGrid = new SendGrid(sendGridUserName, sendGridPassword);
+        return sendGrid;
+    }
+
+    public void sendMail(EmailDto emailDto, WebContext ctx) throws MessagingException {
+        SendGrid.Email sendgrid = new SendGrid.Email();
+
+        sendgrid.setFrom(emailDto.getFromEmail());
+        sendgrid.setFromName(emailDto.getFromName());
+        sendgrid.addTo(emailDto.getToEmail());
+
+        sendgrid.setSubject(emailDto.getSubject());
+        final String htmlContent = this.templateEngine.process(emailDto.getTemplate(), ctx);
+        sendgrid.setHtml(htmlContent);
+
+        try {
+            SendGrid client =  getSendGrid();
+            SendGrid.Response response = client.send(sendgrid);
+            log.debug(response.getMessage());
+            log.debug(String.format("sent mail from %s to %s", emailDto.getFromEmail(), emailDto.getToEmail()));
+
+        } catch (SendGridException e) {
+            log.error(e);
+        }
+    }
+}

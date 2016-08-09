@@ -1,0 +1,38 @@
+<li th:fragment="item" th:each="post,status : ${postResponse.posts}" th:object="${post}"
+    class="post-wrapper" th:with="postClass = ${@viewUtils.getPostClass(post)}"
+    th:classappend="${postClass}"
+    th:attr="id='postId' + ${post.id} + ''">
+
+    <div th:replace="shared/post-body::body"></div>
+
+    <div ng-controller="commentManagerController"
+         th:attr="ng-init='postId = ' + ${post.id} + ''">
+        <ul class="comment-list">
+            <li th:replace="shared/comment-item :: item"></li>
+
+            <li ng-repeat="comment in comments track by comment.id"
+                ng-include="'/dynamic-templates/comment-item?commentId=' + comment.id"
+                include-replace>
+            </li>
+        </ul>
+
+        <div ng-show="showAddCommentForm" style="padding:0 10px">
+            <div ng-controller="commentAddController">
+                <h3>new comment</h3>
+
+                <div ng-if="formModel.isSaving" class="text-center">
+                    <div style="display: inline-block">
+                        <line-loading/>
+                    </div>
+                </div>
+
+                <comment-form form-model="formModel" save-ref="addComment" autosize="true"></comment-form>
+            </div>
+        </div>
+
+
+    </div>
+
+
+</li>
+

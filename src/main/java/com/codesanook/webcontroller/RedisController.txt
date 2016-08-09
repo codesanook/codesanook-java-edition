@@ -1,0 +1,42 @@
+package com.codesanook.webcontroller;
+
+import com.codesanook.dto.posts.PostDto;
+import com.codesanook.service.RedisService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+//@Controller
+//@RequestMapping(value = "/redis")
+public class RedisController {
+
+    private Log log = LogFactory.getLog(RedisController.class);
+
+    private RedisService redisService;
+
+    @Autowired
+    public RedisController(RedisService redisService) {
+        this.redisService = redisService;
+    }
+
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    @ResponseBody
+    public PostDto getUserFormRedis() throws IOException, InterruptedException {
+
+        PostDto postCreateRequest = new PostDto();
+        postCreateRequest.setContent("hello world เพราะใครหล่ะ");
+        String key = "postId-1";
+
+        redisService.set(key, postCreateRequest, 1, TimeUnit.HOURS);
+        PostDto newPostCreateRequest1 = redisService.get(key, PostDto.class);
+        return newPostCreateRequest1;
+    }
+
+
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>codesanook.com : Let's code and have fun!!!</title>
+    <object layout:fragment="head">
+
+        <script type="text/javascript"
+                th:src="|/js/angular/controllers/timeZoneController.js?bno=${buildNumber}|"></script>
+
+        <script th:inline="javascript" type="text/javascript">
+            /*<![CDATA[*/
+            window.timeZoneMillisecond = /*[[${@viewUtils.getUserTimeZone()}]]*/null;
+            /*]]>*/
+        </script>
+
+        <script th:inline="javascript" type="text/javascript">
+            /*<![CDATA[*/
+            window.questionId = /*[[${T(com.codesanook.model.PostTypeEnum).QUESTION.getId()}]]*/null;
+            window.articleId = /*[[${T(com.codesanook.model.PostTypeEnum).ARTICLE.getId()}]]*/null;
+            /*]]>*/
+        </script>
+
+    </object>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div id="home">
+        <div class="container">
+
+
+            <div class="row">
+
+                <div class="col-sm-9 postLists">
+                    <div class="panel panel-default panel-margin-bottom">
+                        <div class="panel-heading text-center">all tags</div>
+                        <div class="panel-body">
+                            <a class="btn btn-xs btn-default" style="margin:3px;" th:each="tag : ${tags}"
+                               th:href="@{/post/list/tag/{tagName}(tagName = ${tag.name})}"
+                               th:text="${tag.name}"></a>
+
+                        </div>
+                    </div>
+                </div>
+                <!--end main post list-->
+                <!--all tags-->
+                <div class="col-sm-3">
+                    <div th:replace="shared/facebook-share :: share"></div>
+                    <div th:replace="shared/facebook-page :: page"></div>
+                </div>
+            </div>
+            <!--end main row-->
+        </div>
+    </div>
+
+    <div ng-controller="timeZoneController"></div>
+</div>
+<!--end container-->
+</body>
+</html>

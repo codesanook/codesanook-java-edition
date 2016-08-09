@@ -1,0 +1,179 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>upload</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/css/style.css"/>
+    <link rel="stylesheet" type="text/css"
+          href="/js/jquery-ui-1.11.4/jquery-ui.css"/>
+
+    <style type="text/css">
+        #dropPhoto {
+            width: 500px;
+            height: 500px;
+            background-color: #5e5e5e;
+        }
+
+        /*
+ * Widget
+ */
+        .uploader {
+            border: 2px dotted #A5A5C7;
+            width: 100%;
+            color: #92AAB0;
+            text-align: center;
+            vertical-align: middle;
+            padding: 40px 0px;
+            margin-bottom: 10px;
+            font-size: 24px;
+            cursor: default;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .uploader-active {
+            border-color: #0B85A1;
+        }
+
+        .uploader div.or {
+            font-size: 14px;
+            font-weight: bold;
+            color: #C0C0C0;
+            padding: 10px;
+        }
+
+        .uploader div.browser label {
+            background-color: #5a7bc2;
+            padding: 5px 15px;
+            color: white;
+            padding: 6px 0px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+            display: block;
+            width: 300px;
+            margin: 20px auto 0px auto;
+
+            box-shadow: 2px 2px 2px #888888;
+        }
+
+        .uploader div.browser span {
+            cursor: pointer;
+        }
+
+        .uploader div.browser input {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+            border: solid transparent;
+            border-width: 0 0 100px 200px;
+            opacity: .0;
+            filter: alpha(opacity=0);
+            -o-transform: translate(250px, -50px) scale(1);
+            -moz-transform: translate(-300px, 0) scale(4);
+            direction: ltr;
+            cursor: pointer;
+        }
+
+        .uploader div.browser label:hover {
+            background-color: #427fed;
+        }
+    </style>
+    <script type="text/javascript" src="/js/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="/js/dropzone.js"></script>
+    <script type="text/javascript" src="/js/dmuploader.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/js/jcrop/jquery.Jcrop.css"/>
+    <script type="text/javascript" src="/js/jcrop/jquery.Jcrop.js"></script>
+
+    <link  href="/js/cropper/cropper.css" rel="stylesheet">
+    <script src="/js/cropper/cropper.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            console.log("loaded");
+
+            var updateTimeout;
+
+            function scheduleNextUpdateProgress() {
+                updateTimeout = setTimeout(function () {
+                    updateProgress();
+                }, 100);
+            }
+
+            function updateProgress() {
+
+                var successCallback = function (result, textStatus, jqXHR) {
+                    console.log(result);
+                    if (result.fileWritten == 0) {
+                        scheduleNextUpdateProgress();
+                        return;
+                    }
+                    var percentComplete = parseInt((result.fileWritten / result.fileSize)) * 100;
+                    console.log("percentComplete " + percentComplete)
+                    $("#progressbar").progressbar({value: percentComplete});
+                    if (percentComplete < 100)  scheduleNextUpdateProgress();
+
+                };
+
+                var errorCallback = function error(jqXHR, textStatus, errorThrown) {
+                    console.log(errorThrown);
+                };
+
+                $.ajax({
+                    data: {},
+                    method: 'GET',
+                    url: "/file/progress",
+                    contentType: "application/json; charset=UTF-8",
+                    success: successCallback,
+                    error: errorCallback
+                });
+
+            };
+
+
+
+        });
+    </script>
+</head>
+<body>
+<div id="progressbar"></div>
+
+<iframe id="uploadFrameID" name="uploadFrame" height="0" width="0" frameborder="0" scrolling="yes"></iframe>
+<form id="uploadForm" method="POST" enctype="multipart/form-data" action="/file/upload" target="uploadFrame">
+
+    File to upload:
+    <p>
+        <input type="file" name="file"><br/>
+        Name:
+        <input type="text" name="name"><br/> <br/>
+        <input type="submit" value="Upload">
+        Press here to upload the file!
+    </p>
+
+    <div id="drop-area-div" class="uploader">
+        <div>Drag &amp; Drop Images Here</div>
+        <div class="or">-or-</div>
+        <div class="browser">
+            <label>
+                <span>Click to open the file Browser</span>
+                <input type="file" name="files[]" multiple="multiple" title='Click to add Files'>
+            </label>
+        </div>
+    </div>
+
+</form>
+
+<img id="uploadedPhoto" src="/img/koala.jpg"/>
+</body>
+
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:remove="all">Template for HTML email (simple)</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<div>
+    <p>
+        Hello <span th:text="${name}"></span>
+    </p>
+
+    <p>
+        To activate your account, please go to this link
+        <strong>
+            <a th:text="${activationUrl}" th:href="${activationUrl}"></a>
+        </strong>
+        <br/>
+        <br/>
+        or copy it to your browser address bar.
+    </p>
+
+    <p>
+        We are looking forward to see you again.
+    </p>
+
+    <br/>
+    <br/>
+
+    <p>
+        Thanks,<br/>
+        codesanook team
+    </p>
+</div>
+</body>
+</html>

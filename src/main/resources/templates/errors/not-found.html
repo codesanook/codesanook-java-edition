@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>Not Found | Codesanook.com</title>
+
+    <object layout:fragment="head">
+        <script th:inline="javascript" type="text/javascript">
+            /*<![CDATA[*/
+
+            window.error = /*[[${error}]]*/ null;
+
+            /*]]>*/
+        </script>
+    </object>
+</head>
+<body>
+
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 class="text-danger text-center" style="margin-top:150px;">
+                Not Found
+            </h1>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,176 @@
+import org.apache.tools.ant.filters.*
+
+//https://docs.spring.io/spring-boot/docs/current/reference/html/howto-properties-and-configuration.html
+//ext.activeProfile = project.hasProperty('activeProfile') ? project.getProperty('activeProfile') : "test"
+//-Dspring.profiles.active=test
+ext.activeProfile = System.getProperty("spring.profiles.active", "local")
+ext.buildNumber = System.getProperty("build.number", "1")
+println "activeProfile $activeProfile"
+println "buildNumber $buildNumber"
+
+def bootVersion = "1.2.7.RELEASE"
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.7.RELEASE")
+        //classpath 'org.flywaydb:flyway-gradle-plugin:4.0'
+    }
+}
+
+
+group 'codesanook'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'spring-boot'
+//apply plugin: "org.flywaydb.flyway"
+
+
+
+
+
+sourceCompatibility = 1.7
+
+jar {
+    archiveName = "codesanook.jar"
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://repository.jboss.org/nexus/content/repositories/releases" }
+    jcenter()
+    maven { url "http://repo.spring.io/libs-snapshot" }
+}
+
+configurations {
+    //compile.exclude group: 'ch.qos.logback'
+    compile.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+}
+
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web:$bootVersion")
+    compile "org.springframework.boot:spring-boot-starter-log4j2:$bootVersion"
+
+    compile "org.springframework.boot:spring-boot-starter-aop:$bootVersion"
+    compile("org.springframework.boot:spring-boot-starter-data-jpa:$bootVersion")
+
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf:$bootVersion")
+    compile('net.sourceforge.nekohtml:nekohtml:1.9.22')
+
+    compile('mysql:mysql-connector-java:5.1.36')
+
+    compile "org.codehaus.groovy:groovy-all:2.4.4"
+    testCompile "org.spockframework:spock-core:1.0-groovy-2.4"
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile 'cglib:cglib-nodep:3.2.1'
+
+    //swagger
+    compile("com.mangofactory:swagger-springmvc:1.0.2")
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'joda-time:joda-time:2.8.2'
+
+    compile 'org.jasypt:jasypt:1.9.2'
+
+    //joda
+    compile 'joda-time:joda-time:2.9'
+    compile 'org.jadira.usertype:usertype.core:4.0.0.GA'
+    compile 'com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.6.3'
+    compile 'com.fasterxml.jackson.datatype:jackson-datatype-joda:2.6.3'
+    //for CORS
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
+    compile "org.springframework.boot:spring-boot-starter-mail:$bootVersion"
+
+    //file upload
+    compile 'commons-fileupload:commons-fileupload:1.3.1'
+    //markdown convert markdown to html
+    compile 'org.pegdown:pegdown:1.6.0'
+
+//    compile 'org.springframework.session:spring-session:1.0.2.RELEASE'
+//    compile 'org.springframework.boot:spring-boot-starter-redis:1.2.7.RELEASE'
+
+    compile 'org.jsoup:jsoup:1.8.3'
+    compile 'org.imgscalr:imgscalr-lib:4.2'
+
+    //fast serialize object
+//    compile 'com.esotericsoftware.kryo:kryo:2.24.0'
+//    compile 'com.github.rjeschke:txtmark:0.13'
+
+    //for google cloud storage
+    compile 'com.google.api-client:google-api-client:1.21.0'
+    compile 'com.google.apis:google-api-services-storage:v1-rev56-1.21.0'
+    compile 'com.amazonaws:aws-java-sdk-s3:1.10.42'
+//    compile 'com.sendgrid:sendgrid-java:2.2.2'
+
+    //facebook
+    compile 'com.restfb:restfb:1.18.1'
+
+    //flyway
+    compile "org.flywaydb:flyway-core:4.0"
+}
+
+//ref https://discuss.gradle.org/t/how-to-copy-and-rename-a-single-file/5956/3
+//ref http://mrhaki.blogspot.com/2010/10/gradle-goodness-renaming-files-while.html
+//https://docs.gradle.org/current/userguide/writing_build_scripts.html
+//-Dlog4j.configuration=log4j-dev.xml
+task copyLogConfig(type: Copy) {
+    def log4j2EnviromentConfig = "log4j2-${activeProfile}.xml";
+    from('src/main/resources/log4j2') {
+        include "$log4j2EnviromentConfig"
+        rename "$log4j2EnviromentConfig", "log4j2.xml"
+    }
+    into "src/main/resources"
+}
+
+
+processResources {
+
+    //exclude node js module folder
+    exclude '**/node_modules/**'
+
+    from('src/main/resources') {
+        include '**/*.properties'
+        filter(ReplaceTokens, tokens: [
+                buildNumber: buildNumber
+        ])
+    }
+
+//    eachFile { fileCopyDetails ->
+//        println "file name : ${fileCopyDetails.file.name}"
+//    }
+}
+
+task showArgs << {
+    println("******* activeProfile $activeProfile")
+    println "****** rootLoggerLevel: ${System.getProperty('rootLoggerLevel')}"
+}
+
+
+def jarFile = "build/libs/codesanook.jar"
+task runJar(type: Exec) {
+    commandLine 'java', '-jar', "$jarFile"
+}
+
+def logFilePath = "";
+task setSystemProperty << {
+
+    //jvmArgs = "-Dhttp.proxyHost=xxxxxx", "-Dhttp.proxyPort=xxxxxx"
+    //http://stackoverflow.com/questions/25079244/how-to-pass-jvm-options-from-bootrun
+}
+
+//name after with closure configuration
+//http://mrhaki.blogspot.com/2015/09/gradle-goodness-pass-java-system.html
+//https://www.credera.com/blog/technology-insights/java/gradle-profiles-for-multi-project-spring-boot-applications/
+bootRun {
+    systemProperties['user.timezone'] = 'GMT'
+    systemProperties["spring.profiles.active"] = activeProfile
+    systemProperties["build.number"] = buildNumber
+}
+
+bootRun.dependsOn copyLogConfig
+processResources.dependsOn copyLogConfig
+

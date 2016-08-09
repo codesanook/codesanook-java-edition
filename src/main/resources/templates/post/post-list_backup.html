@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout">
+<head>
+    <title>CodeSanook.com : Let's code and have fun!!!</title>
+</head>
+<body>
+<div id="home" layout:fragment="content">
+
+    <!--<div class="container-fluid quote hasBefore">-->
+    <!--<h1 class="helFont center">Let's code and have fun.</h1>-->
+    <!--</div>-->
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-9">
+                    <ul class="topic">
+                        <li th:each="post : ${postResponse.posts}">
+                            <div class="title">
+                                <h3 class="helFont">
+                                    <a th:href="${post.alias}" th:text="${post.title}"/>
+                                </h3>
+                            </div>
+
+                            <div class="tags">
+                                <a th:each="tag : ${post.tags}" th:href="${tag}" th:text="${tag}"/>
+                            </div>
+
+                            <div class="previewImg">
+                                <a th:href="@{/post/details/{alias}-{postId}(alias=${post.alias},postId=${post.id})}">
+                                    <img th:src="${post.featuredImage !=null ?
+                                    post.featuredImage.absoluteUrl : 'default-featured-image.jpg'}"/>
+                                </a>
+                            </div>
+                            <!--/*-->
+                            replaceAll("\\<.*?>","")
+                            <!--*/-->
+                            <div th:with="textContent = ${T(org.jsoup.Jsoup).parse(post.content).text()}"
+                                 class="desc defaultFont"
+                                 th:utext="${#strings.length(textContent)> 250} ?
+                                 ${#strings.substring(textContent, 0, 250)} :
+                                 ${textContent}">
+                            </div>
+
+                            <div class="info">
+                                <a th:href="@{/user/profile/{userId}(userId=${post.userId})}" class="author">
+                                    <img src="/img/author-amm.jpg" class="avatar" width="40"/>
+                                    <span class="userName" th:text="${post.userName}"></span>
+                                </a>
+                                <small class="date" th:text="${post.utcCreateDate}"></small>
+                            </div>
+
+                            <br class="clear"/>
+
+                            <div class="more">
+                                <span th:text="|Read : ${post.pageViewCount}|"></span><br/>
+                                <span th:text="|Comments : ${#lists.size(post.comments)}|"></span>
+                                <a th:href="@{/post/details/{alias}-{postId}(alias = ${post.alias},postId = ${post.id})}"
+                                   class="floatRight">Read more ></a>
+                            </div>
+
+
+                        </li>
+                    </ul>
+
+                    <div th:utext="${pagination.render()}"></div>
+
+                </div>
+
+                <div class="col-sm-3 tags">
+                    <h2>TAGS</h2>
+                    <a th:each="tag : ${tagResponse}"
+                       th:href="@{/post/list/tag/{tagName}(tagName = ${tag.name})}"
+                       th:text="${tag.name}"></a>
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

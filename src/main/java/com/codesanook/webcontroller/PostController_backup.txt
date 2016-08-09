@@ -1,0 +1,169 @@
+package com.codesanook.webcontroller;
+
+import com.codesanook.dto.TagDto;
+import com.codesanook.dto.posts.PostDto;
+import com.codesanook.dto.posts.PostDtoList;
+import com.codesanook.interceptor.Authorize;
+import com.codesanook.service.PostService;
+import com.codesanook.service.RedisService;
+import com.codesanook.viewmodel.PaginationViewModel;
+import com.mangofactory.swagger.annotations.ApiIgnore;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.pegdown.PegDownProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+@ApiIgnore
+@Controller
+@Transactional(readOnly = false, rollbackFor = Exception.class, isolation = Isolation.READ_COMMITTED)
+public class PostController_backup {
+
+    private final int itemsPerPage = 5;
+
+    private Log log = LogFactory.getLog(PostController_backup.class);
+    private PostService postService;
+    private RedisService redisService;
+    private PegDownProcessor pegDownProcessor;
+
+    @Autowired
+    public PostController_backup(PostService postService, RedisService redisService, PegDownProcessor pegDownProcessor) {
+        this.postService = postService;
+        this.redisService = redisService;
+        this.pegDownProcessor = pegDownProcessor;
+    }
+
+    @RequestMapping(value = {"/post/list/{pageIndex}/{itemsPerPage}/{sort}"},
+            method = RequestMethod.GET)
+    public String showPostList(@PathVariable int pageIndex, @PathVariable int itemsPerPage,
+                               @PathVariable String sort, Model model) {
+        PostDtoList response = postService.getPosts(pageIndex, itemsPerPage, sort);
+        List<GetTagResponse> tagResponse = postService.getAllTags();
+        model.addAttribute("postResponse", response);
+        model.addAttribute("tagResponse", tagResponse);
+
+        String linkPattern = "/post/list/{pageIndex}/{itemsPerPage}/{sort}";
+        Map param = new HashMap();
+        setPaginationAtribute(pageIndex, itemsPerPage, response.getTotalPagesCount(), model, linkPattern, param);
+        return "post/post-list";
+    }
+
+    private void setPaginationAtribute(int pageIndex, int itemsPerPage, int totalPagesCount, Model model, String linkPattern,
+                                       Map params) {
+
+        PaginationViewModel paginationViewModel = new PaginationViewModel();
+        paginationViewModel.setPageIndex(pageIndex);
+        paginationViewModel.setTotalPagesCount(totalPagesCount);
+        paginationViewModel.setItemsPerPage(itemsPerPage);
+        paginationViewModel.setLinkPattern(linkPattern, params);
+        model.addAttribute("pagination", paginationViewModel);
+    }
+
+    @RequestMapping(value = "/", method = RequestMethod.GET)
+    public String feedPost(Model model) {
+        return showPostList(0, itemsPerPage, "desc", model);
+    }
+
+
+    @Authorize
+    @RequestMapping(value = "/post/create", method = RequestMethod.GET)
+    public String createPost(PostDto postDto, Model model,
+                             @RequestParam(value="cacheKey", required=false) String cacheKey) throws IOException {
+        if(!StringUtils.isEmpty(cacheKey)){
+           postDto = redisService.get(cacheKey,PostDto.class);
+        }
+
+        model.addAttribute("post", postDto);
+        return "post/post-create";
+    }
+
+    @RequestMapping("/post/details/{alias}-{postId}")
+    public String details(@PathVariable int postId, Model model) {
+        PostDto postItemResponse = postService.getPost(postId);
+        model.addAttribute("postItemResponse", postItemResponse);
+
+        List<GetTagResponse> tagResponse = postService.getAllTags();
+        model.addAttribute("tagResponse", tagResponse);
+
+        return "post/post-details";
+    }
+
+
+    @RequestMapping(value = {"/post/list/tag/{tagName}"}, method = RequestMethod.GET)
+    public String showPostListByTagName(@PathVariable("tagName") String tagName, Model model) {
+        int pageIndex = 0;
+        String sort = "desc";
+        return showPostListByTagName(tagName, pageIndex, itemsPerPage, sort, model);
+    }
+
+
+    @RequestMapping(value = {"/post/list/tag/{tagName}/{pageIndex}/{itemsPerPage}/{sort}"},
+            method = RequestMethod.GET)
+    public String showPostListByTagName(@PathVariable String tagName,
+                                        @PathVariable int pageIndex,
+                                        @PathVariable int itemsPerPage,
+                                        @PathVariable String sort, Model model) {
+        PostDtoList response = postService.getPosts(tagName, pageIndex, itemsPerPage, sort);
+        List<GetTagResponse> tagResponse = postService.getAllTags();
+        model.addAttribute("postResponse", response);
+        model.addAttribute("tagResponse", tagResponse);
+
+        String linkPattern = "/post/list/tag/{tagName}/{pageIndex}/{itemsPerPage}/{sort}";
+        Map params = new HashMap();
+        params.put("tagName", tagName);
+
+        setPaginationAtribute(pageIndex, itemsPerPage, response.getTotalPagesCount(), model, linkPattern, params);
+        return "post/post-list";
+    }
+
+
+    @RequestMapping(value = "/post/preview/{key}",method = RequestMethod.GET)
+    public String preview(@PathVariable String key, Model model) throws IOException {
+        PostDto postDto = redisService.get(key, PostDto.class);
+        String htmlContent = pegDownProcessor.markdownToHtml(postDto.getContent());
+        model.addAttribute("htmlContent", htmlContent);
+        model.addAttribute("post", postDto);
+
+        return "post/post-preview";
+    }
+
+/*
+    @Deprecated
+    @Authorize
+    @RequestMapping(value = "/post/preview", method = RequestMethod.POST)
+    public String preview(@ModelAttribute("postCreateRequest") @Valid PostDto postDto,
+                          BindingResult bindingResult,
+                          Model model,
+                          RedirectAttributes redirectAttributes) throws IOException {
+
+        if (bindingResult.hasErrors()) {
+            log.error("validation field error for /post/preview");
+            redirectAttributes.addFlashAttribute("postCreateRequest", postCreateRequest);
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.postCreateRequest",
+                    bindingResult);
+            redirectAttributes.addFlashAttribute("errors", bindingResult.getAllErrors());
+            return "redirect:/post/create";
+        }
+
+        String htmlContent = pegDownProcessor.markdownToHtml(postCreateRequest.getContent());
+        model.addAttribute("postCreateRequest", postCreateRequest);
+        model.addAttribute("htmlContent", htmlContent);
+        return "post/post-preview";
+    }
+*/
+
+}

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico"/>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap-3.3.5.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/webfont.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/site-style.css"/>
+    <link rel="stylesheet" type="text/css" href="/js/jquery-ui-1.11.4/jquery-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/pagination.css"/>
+
+    <script type="text/javascript" src="/js/jquery-2.1.4.js"></script>
+    <script type="text/javascript" src="/js/sprintf.js"></script>
+    <script type="text/javascript" src="/js/jquery.nicescroll/jquery.nicescroll.min.js"></script>
+    <script type="text/javascript" src="/js/angular-1.4.8/angular.min.js"></script>
+    <script type="text/javascript" src="/js/angular-1.4.8/angular-sanitize.min.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-3.3.5.min.js"></script>
+    <script type="text/javascript" src="/js/ui-bootstrap-0.13.4.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-input-file-text.js"></script>
+    <script type="text/javascript" src="/js/javascript.js"></script>
+    <script type="text/javascript" src="/js/jquery-ui-1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="/js/moment-with-locales.js"></script>
+
+    <link type="text/css" rel="stylesheet" href="/js/google-code-prettify/prettify.css"/>
+    <script type="text/javascript" src="/js/google-code-prettify/prettify.js"></script>
+    <script type="text/javascript" src="/js/marked.js"></script>
+    <link href="/css/font-awesome-4.5.0/css/font-awesome.css" rel="stylesheet">
+
+    <script type="text/javascript" src="/js/autosize/autosize.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-handler-toolkit.js"></script>
+    <script th:inline="javascript" type="text/javascript">
+        /*<![CDATA[*/
+
+        /*Spring bean*/
+        window.apiEndpoint = /*[[${@env.getProperty("api-endpoint")}]]*/ null;
+        /*]]>*/
+        window.loggedInUser = /*[[${loggedInUserDto}]]*/ null;
+    </script>
+
+
+    <script type="text/javascript">
+        var app = angular.module('codesanook', ['ngSanitize']);
+        $(document).ready(function () {
+            //$(".htmlContent pre").attr({"class": "prettyprint linenums"});
+            prettyPrint();
+        });
+
+    </script>
+
+    <object layout:fragment="head" th:remove="tag"/>
+</head>
+<body ng-app="codesanook">
+<!--
+th:remove="tag"
+th:replace="header::topBar"
+-->
+
+<!--http://www.w3schools.com/bootstrap/bootstrap_ref_comp_glyphs.asp-->
+<div id="header">
+    <a class="logo center2D" href="/">
+        Code<span class="orange">Sanook</span>
+    </a>
+    <button class="toggleMainNav">
+        <i class="glyphicon glyphicon-menu-hamburger"></i>
+    </button>
+    <ul class="mainNav">
+        <li class="active"><a href="/"><i class="glyphicon glyphicon-home"></i> Home</a></li>
+        <li><a th:href="@{/post/list/type/{postType}( postType = 'question' )}"><i
+                class="glyphicon glyphicon-question-sign"></i> Questions</a></li>
+        <li><a th:href="@{/post/list/type/{postType}( postType = 'article' )}"><i class="glyphicon glyphicon-book"></i>
+            Articles</a></li>
+    </ul>
+    <object th:unless="${loggedInUser}" th:remove="tag">
+        <div class="logInNav">
+            <span class="glyphicon glyphicon-log-in"></span>
+            <ul>
+                <li><a href="/user/register"><i class="glyphicon glyphicon-user"></i> Register</a></li>
+                <li><a href="/user/login"><i class="glyphicon glyphicon-log-in"></i> Log In</a></li>
+            </ul>
+        </div>
+    </object>
+    <object th:if="${loggedInUser}" th:remove="tag">
+        <ul class="userNav">
+            <li>
+                <div><i class="glyphicon glyphicon-plus"></i> New Post</div>
+                <ul>
+                    <li th:with="postType = ${T(com.codesanook.model.PostTypeEnum).QUESTION}">
+                        <a th:href="@{/post/create(type = ${postType.getId()} )}">
+                            <i class="glyphicon glyphicon-question-sign"></i>
+                            New Question
+                        </a>
+                    </li>
+                    <li th:if="${loggedInUser.hasRole(T(com.codesanook.model.RoleEnum).AUTHOR)}"
+                        th:with="postType = ${T(com.codesanook.model.PostTypeEnum).ARTICLE}">
+                        <a th:href="@{/post/create(type=${postType.getId()})}">
+                            <i class="glyphicon glyphicon-book"></i>
+                            New Article
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li><i class="glyphicon glyphicon-bell"></i><span class="badge">0</span></li>
+            <li>
+                <div>
+                    <img src="/img/icon-user-placeholder.png" class="avatar"/>
+                    <!--<span th:text="${loggedInUser.name}"></span>-->
+                    <i class="glyphicon glyphicon-menu-down"></i>
+                </div>
+                <ul>
+                    <li>
+                        <a th:href="@{/user/profile/{userId}(userId = ${loggedInUser.id})}">
+                            <i class="glyphicon glyphicon-user"></i>
+                            View Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/user/logout"><i class="glyphicon glyphicon-log-out"></i> Log Out</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </object>
+</div>
+
+
+<div class="container-fluid">
+
+    <div class="row" th:with="alert = ${__${T(com.codesanook.viewmodel.UiAlert).KEY}__}">
+        <div th:if="${alert}" class="col-sm-12">
+            <div class="alert text-center"
+                 style="margin-top:5px;margin-bottom: 5px;"
+                 th:classappend="${alert.getType().getCssClass()}">
+                <strong th:text="${alert.getMessage()}"></strong>
+            </div>
+        </div>
+    </div>
+
+    <div layout:fragment="content" th:remove="tag">
+        content will be replaced here
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <p>
+                &copy; <span th:with="today = ${#calendars.createNow()}"
+                             th:text="${#calendars.format(today,'yyyy')}"></span>
+                proudly powered by Spring Boot, Java, Linux, MySQL
+            <span th:with="now = ${T(org.joda.time.DateTime).now()}"
+                  th:text="${@dateTimeService.getLocalNow(now)}"></span>
+            </p>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

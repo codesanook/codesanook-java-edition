@@ -1,0 +1,44 @@
+package com.codesanook.dto.users;
+
+
+import com.codesanook.model.User;
+import javax.persistence.*;
+
+@Entity
+@Table(name = "user_emails")
+public class UserEmail {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false,
+            foreignKey = @ForeignKey(name = "FK_user_emails_user_id"))
+    private User user;
+
+    @Column(nullable = false)
+    private String email;
+
+
+    public int getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+}
