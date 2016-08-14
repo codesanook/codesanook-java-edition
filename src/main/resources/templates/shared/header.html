@@ -11,7 +11,7 @@
             <ul class="nav-menu">
 
                 <li class="nav-menu__menu-list">
-                    <a class="nav-menu__menu-link nav-menu__menu-link--collapse"
+                    <a class="nav-menu__menu-link nav-menu__menu-link--collapse nav-menu__menu-link--center"
                        href=""
                        ng-click="toggleCollapseMenu($event)">
                         <span th:text="#{menu.main.toggle-button}"></span>
@@ -21,15 +21,14 @@
 
 
                 <li class="nav-menu__menu-list">
-                    <a class="nav-menu__menu-link"
-                       href="/">
+                    <a class="nav-menu__menu-link nav-menu__menu-link--center" href="/">
                         <i class="fa fa-home"></i>
                         <span th:text="#{menu.main.home}" class="tablet-hide"></span>
                     </a>
                 </li>
 
                 <li class="nav-menu__menu-list">
-                    <a class="nav-menu__menu-link" href="" ng-click="toggleSubMenu($event)">
+                    <a class="nav-menu__menu-link nav-menu__menu-link--center" href="" ng-click="toggleSubMenu($event)">
                         <i class="fa fa-lightbulb-o"></i>
                         <span th:text="#{menu.main.knowledge}" class="mobile-hide"></span>
                         <i class="caret"></i>
@@ -45,7 +44,7 @@
                             </a>
                         </li>
                         <li class="nav-menu__menu-list nav-menu__menu-list--sub">
-                            <a class="nav-menu__menu-link"
+                            <a class="nav-menu__menu-link nav-menu__menu-link--left"
                                th:attr="ng-click='listTip($event,\'' + #{menu.main.tips} + '\')'"
                                href="/post/list/sub-type/tip">
                                 <i class="fa fa-info"></i>
@@ -65,7 +64,7 @@
                 </li>
 
                 <li class="nav-menu__menu-list">
-                    <a class="nav-menu__menu-link"
+                    <a class="nav-menu__menu-link nav-menu__menu-link--center"
                        th:attr="ng-click='listQuestion($event,\'' + #{menu.main.questions-answers} + '\')'"
                        href="/post/list/type/question">
                         <i class="fa fa-question"></i>
@@ -87,7 +86,7 @@
 
 
                 <li class="nav-menu__menu-list">
-                    <a class="nav-menu__menu-link"
+                    <a class="nav-menu__menu-link nav-menu__menu-link--center"
                        href="" ng-click="toggleSubMenu($event)">
                         <i class="fa fa-plus"></i>
                         <span th:text="#{menu.main.create}" class="tablet-hide"></span>
@@ -136,10 +135,8 @@
                     </ul>
                 </li>
 
-
                 <li class="nav-menu__menu-list" ng-controller="notificationController">
-                    <a class="nav-menu__menu-link" href=""
-                       ng-click="toggleNotification($event)">
+                    <a class="nav-menu__menu-link nav-menu__menu-link--center" href="" ng-click="toggleNotification($event)">
                         <i class="fa fa-bell-o"></i>
                         <span ng-bind="newNotification.totalCount"
                               ng-class="{'new-notification-count':  newNotification.totalCount > 0}">

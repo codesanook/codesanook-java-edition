@@ -96,19 +96,18 @@
       padding-left: 20px;
     }
   }
-
   //end nav-menu block
 
   @include e('menu-list') {
-    float: left;;
+    float: left;
     margin: 0;
     padding: 0;
     position: relative;
-    text-align:center;
+    /*text-align:center;*/
 
     @include m('sub') {
       width: 100%;
-      float: none;;
+      float: none;
     }
 
     @include m('collapse') {
@@ -161,6 +160,14 @@
       }
     }
 
+    @include m('left') {
+     text-align:left;
+    }
+
+    @include m('center') {
+      text-align:center;
+    }
+
   }
 
   @include e('menu-icon') {
@@ -170,9 +177,6 @@
   }
 
 }
-
-
-
 
 .toggle-menu-button {
   float: left;

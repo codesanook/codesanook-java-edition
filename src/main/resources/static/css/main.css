@@ -72,7 +72,7 @@
     margin: 0;
     padding: 0;
     position: relative;
-    text-align: center; }
+    /*text-align:center;*/ }
     .nav-menu__menu-list--sub {
       width: 100%;
       float: none; }
@@ -109,6 +109,10 @@
       @media only screen and (max-width: 768px) {
         .nav-menu__menu-link--collapse {
           display: block; } }
+    .nav-menu__menu-link--left {
+      text-align: left; }
+    .nav-menu__menu-link--center {
+      text-align: center; }
   .nav-menu__menu-icon {
     padding: 0;
     margin: 0;
