@@ -282,4 +282,30 @@ header div.hero h1 {
     width: 100%;
     height: 100%; }
 
+.fork-me {
+  position: fixed;
+  top: 300px;
+  right: -60px;
+  padding: 5px 10px;
+  background-color: #98383B;
+  color: #FFF;
+  box-shadow: 0 0 2px #888;
+  transform: rotate(270deg);
+  display: block; }
+  .fork-me:focus {
+    color: #FFF;
+    text-decoration: none;
+    border: none;
+    outline: none; }
+  .fork-me:active {
+    color: #FFF;
+    text-decoration: none;
+    border: none;
+    outline: none; }
+  .fork-me:hover {
+    color: #FFF;
+    text-decoration: none;
+    border: none;
+    outline: none; }
+
 /*# sourceMappingURL=main.css.map */

@@ -1,0 +1,33 @@
+$fork-me-font-color: #FFF;
+.fork-me {
+  position: fixed;
+  top: 300px;
+  right: -60px;
+  padding: 5px 10px;
+  background-color: #98383B;
+  color: $fork-me-font-color;
+  box-shadow:0 0 2px #888;
+  transform:rotate(270deg);
+  display:block;
+
+  &:focus {
+    color: $fork-me-font-color;
+    text-decoration: none;
+    border: none;
+    outline: none;
+  }
+
+  &:active {
+    color: $fork-me-font-color;
+    text-decoration: none;
+    border: none;
+    outline: none;
+  }
+
+  &:hover {
+    color: $fork-me-font-color;
+    text-decoration: none;
+    border: none;
+    outline: none;
+  }
+}
